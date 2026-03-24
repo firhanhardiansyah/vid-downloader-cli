@@ -1,0 +1,6 @@
+# Put your video URLs here
+# One URL per line
+
+https://example.com/video1
+https://example.com/video2
+https://example.com/video3

@@ -1,0 +1,19 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Downloaded videos
+videos/
+*.mp4
+*.mkv
+*.mp3
+
+# Private URL list
+urls.txt
+
+# OS files
+.DS_Store
+Thumbs.db
