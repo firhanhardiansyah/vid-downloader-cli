@@ -1,17 +1,21 @@
 import yt_dlp
 import os
+import imageio_ffmpeg
 from core.utils import ensure_folder
 
-def download_videos(urls, folder="videos", quality="best", audio_only=False):
+def download_videos(urls, folder="videos", quality="best", audio_only=False, simple=False):
     ensure_folder(folder)
 
     if audio_only:
         format_option = "bestaudio"
     else:
-        if quality == "best":
-            format_option = "bestvideo+bestaudio/best"
+        if simple:
+            format_option = "best"
         else:
-            format_option = f"bestvideo[height<={quality}]+bestaudio/best"
+            if quality == "best":
+                format_option = "bestvideo+bestaudio/best"
+            else:
+                format_option = f"bestvideo[height<={quality}]+bestaudio/best"
 
     ydl_opts = {
         'format': format_option,
@@ -21,6 +25,7 @@ def download_videos(urls, folder="videos", quality="best", audio_only=False):
         'ignoreerrors': True,
         'retries': 10,
         'continuedl': True,
+        'ffmpeg_location': imageio_ffmpeg.get_ffmpeg_exe(),
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
