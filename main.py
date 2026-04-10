@@ -67,6 +67,18 @@ parser.add_argument(
     help='Extra HTTP headers in JSON format, for example: \'{"User-Agent":"Mozilla/5.0"}\'',
 )
 
+# Partial download options
+parser.add_argument(
+    "--start",
+    dest="start_time",
+    help='Start time for partial download, example: "00:01:30" or "90"',
+)
+parser.add_argument(
+    "--end",
+    dest="end_time",
+    help='End time for partial download, example: "00:03:00" or "180"',
+)
+
 args = parser.parse_args()
 
 # Show version
@@ -102,6 +114,66 @@ cookies_from_browser = None
 if args.cookies_browser:
     cookies_from_browser = (args.cookies_browser,)
 
+
+def parse_time_to_seconds(value):
+    if value is None:
+        return None
+
+    value = str(value).strip()
+
+    if not value:
+        return None
+
+    if value.isdigit():
+        return int(value)
+
+    parts = value.split(":")
+
+    try:
+        if len(parts) == 3:
+            hours, minutes, seconds = parts
+            return int(hours) * 3600 + int(minutes) * 60 + int(seconds)
+
+        if len(parts) == 2:
+            minutes, seconds = parts
+            return int(minutes) * 60 + int(seconds)
+
+    except ValueError:
+        pass
+
+    raise ValueError(
+        f"Invalid time format: {value}. Use seconds like '90' or timestamp like '00:01:30'."
+    )
+
+
+try:
+    start_time = parse_time_to_seconds(args.start_time)
+    end_time = parse_time_to_seconds(args.end_time)
+except ValueError as exc:
+    print(exc)
+    raise SystemExit(1)
+
+
+try:
+    start_time = parse_time_to_seconds(args.start_time)
+    end_time = parse_time_to_seconds(args.end_time)
+except ValueError as exc:
+    print(exc)
+    raise SystemExit(1)
+
+# Validate partial range
+if start_time is not None and start_time < 0:
+    print("Invalid --start value: must be 0 or greater.")
+    raise SystemExit(1)
+
+if end_time is not None and end_time < 0:
+    print("Invalid --end value: must be 0 or greater.")
+    raise SystemExit(1)
+
+if start_time is not None and end_time is not None and start_time >= end_time:
+    print("Invalid range: --start must be less than --end.")
+    raise SystemExit(1)
+
 # Start download
 download_videos(
     urls=urls,
@@ -113,4 +185,6 @@ download_videos(
     cookies_from_browser=cookies_from_browser,
     extra_headers=extra_headers,
     filename_mode=args.filename_mode,
+    start_time=start_time,
+    end_time=end_time,
 )
