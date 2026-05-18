@@ -4,6 +4,9 @@ import imageio_ffmpeg
 import yt_dlp
 from yt_dlp.utils import download_range_func
 
+from core.formats import build_format_option
+from core.metadata import print_video_info
+from core.time_utils import resolve_download_range
 from core.utils import ensure_folder
 
 
@@ -14,40 +17,31 @@ def download_videos(
     audio_only=False,
     simple=False,
     referer=None,
-    cookies_from_browser=None,  # example: ('chrome',) or ('firefox',)
+    cookies_from_browser=None,
     extra_headers=None,
-    filename_mode="title",  # "title_id" | "title" | "id"
-    start_time=None,        # in seconds
-    end_time=None,          # in seconds
+    filename_mode="title",
+    start_time=None,
+    end_time=None,
 ):
     ensure_folder(folder)
 
     is_partial_requested = start_time is not None or end_time is not None
 
-    if audio_only:
-        format_option = "bestaudio/best"
-    else:
-        if is_partial_requested:
-            # lebih aman untuk partial cut
-            format_option = "best[ext=mp4]/best"
-        elif simple:
-            format_option = "best"
-        else:
-            if quality == "best":
-                format_option = "bestvideo+bestaudio/best"
-            else:
-                format_option = f"bestvideo[height<={quality}]+bestaudio/best"
+    format_option = build_format_option(
+        quality=quality,
+        audio_only=audio_only,
+        simple=simple,
+        is_partial_requested=is_partial_requested,
+    )
 
     http_headers = extra_headers.copy() if extra_headers else {}
     if referer:
         http_headers["Referer"] = referer
 
-    output_template = build_output_template(folder, filename_mode)
-
     ydl_opts = {
         "format": format_option,
         "merge_output_format": "mp4",
-        "outtmpl": output_template,
+        "outtmpl": build_output_template(folder, filename_mode),
         "noplaylist": True,
         "ignoreerrors": False,
         "retries": 10,
@@ -57,38 +51,49 @@ def download_videos(
         "overwrites": False,
         "verbose": True,
         "extractor_args": {
-            "generic": {"impersonate": ["chrome"]}
+            "generic": {"impersonate": ["chrome"]},
         },
     }
 
     if cookies_from_browser:
         ydl_opts["cookiesfrombrowser"] = cookies_from_browser
 
+    total_urls = len(urls)
+
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        if is_partial_requested:
-            # ambil info dulu untuk dapat duration
-            info = ydl.extract_info(urls[0], download=False)
-            duration = info.get("duration")
+        for index, url in enumerate(urls, start=1):
+            info = ydl.extract_info(url, download=False)
 
-            if duration is None:
-                raise ValueError("Video duration is not available, so partial download cannot be resolved safely.")
+            if is_partial_requested:
+                duration = info.get("duration")
+                resolved_start, resolved_end = resolve_download_range(
+                    duration=duration,
+                    start_time=start_time,
+                    end_time=end_time,
+                )
 
-            resolved_start = 0 if start_time is None else start_time
-            resolved_end = duration if end_time is None else end_time
+                ydl.params["download_ranges"] = download_range_func(
+                    [],
+                    [(resolved_start, resolved_end)],
+                )
 
-            if resolved_start < 0:
-                raise ValueError("start_time must be 0 or greater.")
-            if resolved_end < 0:
-                raise ValueError("end_time must be 0 or greater.")
-            if resolved_start >= resolved_end:
-                raise ValueError("start_time must be less than end_time.")
+                print_video_info(
+                    info,
+                    index=index,
+                    total=total_urls,
+                    is_partial_requested=True,
+                    start_time=resolved_start,
+                    end_time=resolved_end,
+                )
+            else:
+                print_video_info(
+                    info,
+                    index=index,
+                    total=total_urls,
+                )
 
-            ydl.params["download_ranges"] = download_range_func(
-                [],
-                [(resolved_start, resolved_end)],
-            )
-
-        ydl.download(urls)
+            print("\nStarting download...")
+            ydl.download([url])
 
 
 def build_output_template(folder: str, filename_mode: str) -> str:
