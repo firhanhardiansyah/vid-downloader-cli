@@ -1,16 +1,15 @@
-from django.shortcuts import render
+from django.conf import settings
+from django.shortcuts import redirect, render
 
 from core.downloader import download_videos
 from core.time_utils import parse_time_to_seconds
-
-from django.conf import settings
 
 from .forms import DownloadForm
 
 
 def index(request):
-    result = None
-    error = None
+    result = request.session.pop("download_result", None)
+    error = request.session.pop("download_error", None)
 
     if request.method == "POST":
         form = DownloadForm(request.POST)
@@ -21,8 +20,10 @@ def index(request):
                 quality = form.cleaned_data["quality"]
                 audio_only = form.cleaned_data["audio"]
                 simple = form.cleaned_data["simple"]
+
                 folder_name = form.cleaned_data["folder"]
                 folder = settings.ROOT_DIR / folder_name
+
                 filename_mode = form.cleaned_data["filename_mode"]
                 referer = form.cleaned_data["referer"] or None
                 headers = form.cleaned_data["headers"]
@@ -37,7 +38,7 @@ def index(request):
 
                 download_videos(
                     urls=urls,
-                    folder=folder,
+                    folder=str(folder),
                     quality=quality,
                     audio_only=audio_only,
                     simple=simple,
@@ -49,14 +50,17 @@ def index(request):
                     end_time=end_time,
                 )
 
-                result = {
+                request.session["download_result"] = {
                     "message": "Download finished successfully.",
                     "total_urls": len(urls),
-                    "folder": folder,
+                    "folder": str(folder),
                 }
 
             except Exception as exc:
-                error = str(exc)
+                request.session["download_error"] = str(exc)
+
+            return redirect("downloader:index")
+
     else:
         form = DownloadForm()
 
