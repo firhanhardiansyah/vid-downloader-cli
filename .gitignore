@@ -1,18 +1,33 @@
-# Virtual environment
+# Virtual environments
+.venv/
 venv/
 
 # Python cache
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 
-# Downloaded videos
+# Downloaded media
 videos/
 *.mp4
 *.mkv
 *.mp3
+*.m4a
+*.webm
+*.part
+*.ytdl
 
-# Private URL list
+# Private URL lists
 urls.txt
+*.urls.txt
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
 
 # OS files
 .DS_Store
