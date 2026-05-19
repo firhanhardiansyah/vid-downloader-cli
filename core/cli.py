@@ -112,13 +112,24 @@ def build_parser() -> argparse.ArgumentParser:
     # Partial download options
     parser.add_argument(
         "--start",
+        "--start-time",
         dest="start_time",
-        help='Start time for partial download, example: "00:01:30" or "90"',
+        help=(
+            "Start time for partial download. "
+            "Supported formats: seconds, MM:SS, or HH:MM:SS. "
+            'Examples: "90", "01:30", "00:01:30".'
+        ),
     )
+
     parser.add_argument(
         "--end",
+        "--end-time",
         dest="end_time",
-        help='End time for partial download, example: "00:03:00" or "180"',
+        help=(
+            "End time for partial download. "
+            "Supported formats: seconds, MM:SS, or HH:MM:SS. "
+            'Examples: "180", "03:00", "00:03:00".'
+        ),
     )
 
     return parser
