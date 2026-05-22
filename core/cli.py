@@ -18,14 +18,15 @@ def main() -> None:
         print("Please provide a video URL or a .txt file containing URLs.")
         raise SystemExit(1)
 
-    urls = parse_input_urls(args.input)
-    extra_headers = parse_extra_headers(args.headers)
-    cookies_from_browser = parse_cookies_from_browser(args.cookies_browser)
-
     try:
+        urls = parse_input_urls(args.input)
+        extra_headers = parse_extra_headers(args.headers)
+        cookies_from_browser = parse_cookies_from_browser(args.cookies_browser)
+
         start_time = parse_time_to_seconds(args.start_time)
         end_time = parse_time_to_seconds(args.end_time)
         validate_time_range(start_time, end_time)
+
     except ValueError as exc:
         print(exc)
         raise SystemExit(1)
@@ -143,8 +144,7 @@ def parse_input_urls(input_value: str) -> list[str]:
         urls = [input_value]
 
     if not urls:
-        print("No valid URLs found.")
-        raise SystemExit(1)
+        raise ValueError("No valid URLs found.")
 
     return urls
 
@@ -161,9 +161,8 @@ def parse_extra_headers(headers: str | None) -> dict | None:
 
         return extra_headers
 
-    except Exception as exc:
-        print(f"Invalid --headers value: {exc}")
-        raise SystemExit(1)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Invalid --headers value: {exc}") from exc
 
 
 def parse_cookies_from_browser(browser: str | None) -> tuple[str] | None:
@@ -174,8 +173,8 @@ def parse_cookies_from_browser(browser: str | None) -> tuple[str] | None:
 
 
 def validate_time_range(
-    start_time: int | None,
-    end_time: int | None,
+    start_time: int | float | None,
+    end_time: int | float | None,
 ) -> None:
     if start_time is not None and start_time < 0:
         raise ValueError("Invalid --start value: must be 0 or greater.")
