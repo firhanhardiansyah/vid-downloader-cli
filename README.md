@@ -18,7 +18,7 @@ This tool supports:
 ### Create a Virtual Environment
 
 ```bash
-python -m venv venv
+python -m venv .venv
 ```
 
 ### Activate the Virtual Environment
@@ -26,13 +26,13 @@ python -m venv venv
 **Windows**
 
 ```bash
-venv\Scripts\activate
+.venv\Scripts\activate
 ```
 
 **Mac / Linux**
 
 ```bash
-source venv/bin/activate
+source .venv/bin/activate
 ```
 
 ### Install Requirements
