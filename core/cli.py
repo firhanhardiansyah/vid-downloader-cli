@@ -2,7 +2,7 @@ import argparse
 import json
 
 from core import __version__
-from core.downloader import download_videos
+from core.download_config import load_download_config
 from core.time_utils import parse_time_to_seconds
 
 
@@ -14,12 +14,19 @@ def main() -> None:
         print("Video Downloader Version:", __version__)
         raise SystemExit(0)
 
-    if not args.input:
-        print("Please provide a video URL or a .txt file containing URLs.")
-        raise SystemExit(1)
+    if not args.download:
+        print("Video Downloader CLI")
+        print()
+        print("Use this command to start downloading:")
+        print("  python main.py --download")
+        print()
+        print("The default configuration is read from download.conf.")
+        print("Use --help to see all available options.")
+        raise SystemExit(0)
 
     try:
-        urls = parse_input_urls(args.input)
+        input_value = args.input or "download.conf"
+        urls, config_download_dir, config_quality = parse_download_input(input_value)
         extra_headers = parse_extra_headers(args.headers)
         cookies_from_browser = parse_cookies_from_browser(args.cookies_browser)
 
@@ -31,10 +38,12 @@ def main() -> None:
         print(exc)
         raise SystemExit(1)
 
+    from core.downloader import download_videos
+
     download_videos(
         urls=urls,
-        folder=args.folder,
-        quality=args.quality,
+        folder=args.folder or config_download_dir or "videos",
+        quality=args.quality or config_quality or "best",
         audio_only=args.audio,
         simple=args.simple,
         referer=args.referer,
@@ -50,15 +59,23 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Video Downloader CLI")
 
     parser.add_argument(
+        "--download",
+        action="store_true",
+        help="Start downloading using download.conf or the provided input",
+    )
+    parser.add_argument(
         "input",
         nargs="?",
-        help="Video URL or a .txt file containing URLs",
+        help=(
+            "Video URL or download config file "
+            "(default: download.conf when omitted)"
+        ),
     )
     parser.add_argument(
         "-q",
         "--quality",
-        default="best",
-        help="Video quality: 144, 240, 360, 480, 720, 1080, or best",
+        choices=["144", "240", "360", "480", "720", "1080", "best"],
+        help="Override QUALITY: 144, 240, 360, 480, 720, 1080, or best",
     )
     parser.add_argument(
         "-a",
@@ -83,8 +100,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-f",
         "--folder",
-        default="videos",
-        help="Output folder for downloaded files",
+        help="Override DOWNLOAD_DIR from the config file",
     )
     parser.add_argument(
         "--filename-mode",
@@ -136,7 +152,13 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def parse_input_urls(input_value: str) -> list[str]:
+def parse_download_input(
+    input_value: str,
+) -> tuple[list[str], str | None, str | None]:
+    if input_value.endswith((".conf", ".config")):
+        config = load_download_config(input_value)
+        return config.urls, config.download_dir, config.quality
+
     if input_value.endswith(".txt"):
         with open(input_value, "r", encoding="utf-8") as file:
             urls = [line.strip() for line in file if line.strip()]
@@ -146,6 +168,12 @@ def parse_input_urls(input_value: str) -> list[str]:
     if not urls:
         raise ValueError("No valid URLs found.")
 
+    return urls, None, None
+
+
+def parse_input_urls(input_value: str) -> list[str]:
+    """Backward-compatible helper for callers that only need URLs."""
+    urls, _, _ = parse_download_input(input_value)
     return urls
 
 

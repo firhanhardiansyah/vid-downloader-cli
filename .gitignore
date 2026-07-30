@@ -20,6 +20,7 @@ videos/
 # Private URL lists
 urls.txt
 *.urls.txt
+download.conf
 
 # Environment variables
 .env

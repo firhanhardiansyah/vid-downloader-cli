@@ -7,7 +7,7 @@ This tool supports:
 - Downloading the best available video quality
 - Downloading a specific resolution (360p, 480p, 720p, 1080p)
 - Downloading audio only
-- Batch downloading from a `.txt` file
+- Batch downloading from a single download config
 - Simple mode for faster downloads
 - Custom output folder selection
 - Flexible filename modes
@@ -60,8 +60,8 @@ video_downloader/
 │   └── utils.py
 │
 ├── videos/
-├── urls.txt
-├── urls.example.txt
+├── download.conf
+├── download.example.conf
 ├── main.py
 ├── requirements.txt
 ├── README.md
@@ -71,72 +71,90 @@ video_downloader/
 
 ## 4. How to Use
 
-### Prepare a URL List
+### Prepare the Download Config
 
-Create a `urls.txt` file based on the example file:
+Create a private `download.conf` file based on the example:
 
 **Windows**
 
 ```bash
-copy urls.example.txt urls.txt
+copy download.example.conf download.conf
 ```
 
 **Mac / Linux**
 
 ```bash
-cp urls.example.txt urls.txt
+cp download.example.conf download.conf
 ```
 
-Example `urls.txt`:
+Example `download.conf`:
 
-```txt
-https://example.com/video1
-https://example.com/video2
-https://example.com/video3
+```ini
+URLS=[
+    "https://example.com/video1",
+    "https://example.com/video2",
+    "https://example.com/video3",
+]
+
+DOWNLOAD_DIR=~/Downloads/videos
+
+# Empty means best quality.
+QUALITY=
 ```
+
+`DOWNLOAD_DIR` may be an absolute path outside this project, a path starting
+with `~`, or a relative path. Relative paths are resolved from the directory
+containing `download.conf`.
 
 ## 5. Basic Usage
 
 ### Download a Single Video
 
 ```bash
-python main.py https://example.com/video
+python main.py --download https://example.com/video
 ```
 
-### Download Multiple Videos from a TXT File
+### Download Everything in the Config
 
 ```bash
-python main.py urls.txt
+python main.py --download
+```
+
+You can also provide a config file explicitly:
+
+```bash
+python main.py --download /path/to/my-download.conf
 ```
 
 ### Download Audio Only
 
 ```bash
-python main.py https://example.com/video --audio
+python main.py --download https://example.com/video --audio
 ```
 
 ### Download in 720p
 
 ```bash
-python main.py https://example.com/video --quality 720
+python main.py --download https://example.com/video --quality 720
 ```
 
 ### Use Simple Mode
 
 ```bash
-python main.py https://example.com/video --simple
+python main.py --download https://example.com/video --simple
 ```
 
 ## 6. Command-Line Options
 
 | Option                    | Description                                           |
 | ------------------------- | ----------------------------------------------------- |
-| `input`                   | A video URL or a `.txt` file containing multiple URLs |
+| `--download`              | Start the download process                            |
+| `input`                   | A video URL or config file (defaults to `download.conf`) |
 | `-q`, `--quality`         | Video quality: `360`, `480`, `720`, `1080`, or `best` |
 | `-a`, `--audio`           | Download audio only                                   |
 | `-s`, `--simple`          | Enable simple mode for faster downloads               |
 | `-v`, `--version`         | Show application version                              |
-| `-f`, `--folder`          | Set the output folder                                 |
+| `-f`, `--folder`          | Override `DOWNLOAD_DIR` from the config               |
 | `--filename-mode`         | Set filename format: `title_id`, `title`, or `id`     |
 | `-r`, `--referer`         | Set a referer URL for embedded or protected media     |
 | `-c`, `--cookies-browser` | Load cookies from a browser session                   |
@@ -153,16 +171,16 @@ python main.py https://example.com/video --simple
 
 ## 8. Output Folder
 
-By default, downloaded files are saved to:
+Set the output directory in `download.conf`. It can be outside the project:
 
-```bash
-videos/movies
+```ini
+DOWNLOAD_DIR=/Users/your-name/Downloads/videos
 ```
 
-You can set a custom output folder using:
+For a one-off override, use `--folder`:
 
 ```bash
-python main.py https://example.com/video --folder downloads
+python main.py --download --folder /another/output/directory
 ```
 
 ## 9. Filename Modes
@@ -182,19 +200,19 @@ The downloader supports multiple filename formats.
 Use title + ID:
 
 ```bash
-python main.py https://example.com/video --filename-mode title_id
+python main.py --download https://example.com/video --filename-mode title_id
 ```
 
 Use title only:
 
 ```bash
-python main.py https://example.com/video --filename-mode title
+python main.py --download https://example.com/video --filename-mode title
 ```
 
 Use ID only:
 
 ```bash
-python main.py https://example.com/video --filename-mode id
+python main.py --download https://example.com/video --filename-mode id
 ```
 
 ## 10. Advanced Usage
@@ -204,7 +222,7 @@ python main.py https://example.com/video --filename-mode id
 Useful for embedded or modal-based video sources:
 
 ```bash
-python main.py https://example.com/video --referer https://example.com/page
+python main.py --download https://example.com/video --referer https://example.com/page
 ```
 
 ### Load Cookies from a Browser
@@ -212,7 +230,7 @@ python main.py https://example.com/video --referer https://example.com/page
 Example using Chrome:
 
 ```bash
-python main.py https://example.com/video --cookies-browser chrome
+python main.py --download https://example.com/video --cookies-browser chrome
 ```
 
 Supported browsers:
@@ -228,13 +246,13 @@ Supported browsers:
 ### Send Extra Headers
 
 ```bash
-python main.py https://example.com/video --headers "{\"User-Agent\":\"Mozilla/5.0\"}"
+python main.py --download https://example.com/video --headers "{\"User-Agent\":\"Mozilla/5.0\"}"
 ```
 
 Example with multiple headers:
 
 ```bash
-python main.py https://example.com/video --headers "{\"User-Agent\":\"Mozilla/5.0\",\"X-Test\":\"123\"}"
+python main.py --download https://example.com/video --headers "{\"User-Agent\":\"Mozilla/5.0\",\"X-Test\":\"123\"}"
 ```
 
 ## 11. Example Commands
@@ -242,49 +260,49 @@ python main.py https://example.com/video --headers "{\"User-Agent\":\"Mozilla/5.
 ### Download Best Quality
 
 ```bash
-python main.py https://example.com/video
+python main.py --download https://example.com/video
 ```
 
 ### Download 720p
 
 ```bash
-python main.py https://example.com/video --quality 720
+python main.py --download https://example.com/video --quality 720
 ```
 
 ### Download Audio Only
 
 ```bash
-python main.py https://example.com/video --audio
+python main.py --download https://example.com/video --audio
 ```
 
 ### Download Using Simple Mode
 
 ```bash
-python main.py https://example.com/video --simple
+python main.py --download https://example.com/video --simple
 ```
 
-### Batch Download from TXT
+### Batch Download from Config
 
 ```bash
-python main.py urls.txt
+python main.py --download
 ```
 
 ### Batch Download 720p to a Custom Folder
 
 ```bash
-python main.py urls.txt --quality 720 --folder downloads
+python main.py --download --quality 720 --folder /path/to/downloads
 ```
 
 ### Download Using ID as Filename
 
 ```bash
-python main.py https://example.com/video --filename-mode id
+python main.py --download https://example.com/video --filename-mode id
 ```
 
 ### Download with Browser Cookies and Referer
 
 ```bash
-python main.py https://example.com/video --referer https://example.com/page --cookies-browser chrome
+python main.py --download https://example.com/video --referer https://example.com/page --cookies-browser chrome
 ```
 
 ## 12. Running the Project
@@ -295,14 +313,14 @@ Each time you want to run the project:
 
 ```bash
 venv\Scripts\activate
-python main.py urls.txt
+python main.py --download
 ```
 
 **Mac / Linux**
 
 ```bash
 source venv/bin/activate
-python main.py urls.txt
+python main.py --download
 ```
 
 ## 13. .gitignore
@@ -319,7 +337,7 @@ videos/
 
 - Video download
 - Audio-only download
-- Batch download from `.txt`
+- Batch download from `download.conf`
 - Quality selection
 - Simple mode
 - Custom output folder
