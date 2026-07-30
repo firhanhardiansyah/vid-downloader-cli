@@ -12,6 +12,8 @@ This tool supports:
 - Custom output folder selection
 - Flexible filename modes
 - Optional referer, cookies, and custom headers for protected or embedded sources
+- Safe resume from `.part` files after an interrupted download
+- Output-directory locking to prevent concurrent writes and race conditions
 
 ## 1. Project Setup
 
@@ -353,6 +355,15 @@ videos/
 - This project uses `imageio-ffmpeg` to provide FFmpeg automatically in Python environments.
 - Some websites may require a referer, cookies, or custom headers to allow media downloads.
 - If multiple videos have the same title, using `title_id` or `id` is recommended to avoid filename conflicts.
+- If a download is interrupted, run `python main.py --download` again. The downloader
+  will reuse the existing `.part` file when the source server supports resuming.
+- Temporary fragments are removed after a successful download. An unfinished
+  `.part` file is intentionally retained so the next run can resume it.
+- Only one downloader process may use the same `DOWNLOAD_DIR` at a time. A second
+  process exits safely instead of writing to the same files concurrently.
+- `.vid-downloader.lock` is a small persistent lock anchor, not download data.
+  It is intentionally retained because deleting an OS lock file can introduce
+  an inode race between downloader processes.
 
 Check FFmpeg manually if needed:
 

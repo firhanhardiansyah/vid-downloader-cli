@@ -4,6 +4,7 @@ import imageio_ffmpeg
 import yt_dlp
 from yt_dlp.utils import download_range_func
 
+from core.download_lock import DownloadDirectoryLock
 from core.formats import build_format_option
 from core.metadata import print_video_info
 from core.time_utils import resolve_download_range
@@ -25,6 +26,35 @@ def download_videos(
 ):
     ensure_folder(folder)
 
+    with DownloadDirectoryLock(folder):
+        _download_videos_unlocked(
+            urls=urls,
+            folder=folder,
+            quality=quality,
+            audio_only=audio_only,
+            simple=simple,
+            referer=referer,
+            cookies_from_browser=cookies_from_browser,
+            extra_headers=extra_headers,
+            filename_mode=filename_mode,
+            start_time=start_time,
+            end_time=end_time,
+        )
+
+
+def _download_videos_unlocked(
+    urls,
+    folder,
+    quality,
+    audio_only,
+    simple,
+    referer,
+    cookies_from_browser,
+    extra_headers,
+    filename_mode,
+    start_time,
+    end_time,
+):
     is_partial_requested = start_time is not None or end_time is not None
 
     format_option = build_format_option(
@@ -46,6 +76,8 @@ def download_videos(
         "ignoreerrors": False,
         "retries": 10,
         "continuedl": True,
+        "nopart": False,
+        "keep_fragments": False,
         "ffmpeg_location": imageio_ffmpeg.get_ffmpeg_exe(),
         "http_headers": http_headers,
         "overwrites": False,

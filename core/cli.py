@@ -38,21 +38,26 @@ def main() -> None:
         print(exc)
         raise SystemExit(1)
 
+    from core.download_lock import DownloadDirectoryBusyError
     from core.downloader import download_videos
 
-    download_videos(
-        urls=urls,
-        folder=args.folder or config_download_dir or "videos",
-        quality=args.quality or config_quality or "best",
-        audio_only=args.audio,
-        simple=args.simple,
-        referer=args.referer,
-        cookies_from_browser=cookies_from_browser,
-        extra_headers=extra_headers,
-        filename_mode=args.filename_mode,
-        start_time=start_time,
-        end_time=end_time,
-    )
+    try:
+        download_videos(
+            urls=urls,
+            folder=args.folder or config_download_dir or "videos",
+            quality=args.quality or config_quality or "best",
+            audio_only=args.audio,
+            simple=args.simple,
+            referer=args.referer,
+            cookies_from_browser=cookies_from_browser,
+            extra_headers=extra_headers,
+            filename_mode=args.filename_mode,
+            start_time=start_time,
+            end_time=end_time,
+        )
+    except DownloadDirectoryBusyError as exc:
+        print(exc)
+        raise SystemExit(1)
 
 
 def build_parser() -> argparse.ArgumentParser:
