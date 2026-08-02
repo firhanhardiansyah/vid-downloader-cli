@@ -110,6 +110,51 @@ containing `download.conf`.
 
 ## 5. Basic Usage
 
+### Interactive Mode
+
+Run the CLI without arguments and follow the prompts:
+
+```bash
+python main.py
+```
+
+```text
+Video Downloader
+
+URL or config [download.conf]:
+Download directory [~/Downloads/videos]:
+Quality [best]:
+Audio only? [y/N]:
+Start time [from beginning]: 10:12
+End time [until finished]: 13:12
+
+Download summary
+URLs      : 3
+Directory : /Users/your-name/Downloads/videos
+Quality   : best
+Mode      : Video
+Range     : 10:12 - 13:12
+
+Start download? [Y/n]:
+```
+
+Press Enter to use each displayed default. `DOWNLOAD_DIR` and `QUALITY` default
+to the values in `download.conf`, even when entering a URL directly. The final
+confirmation defaults to `Yes`, so pressing Enter starts the download. Use
+`Ctrl+C` at any prompt to cancel cleanly.
+
+Time values accept seconds, `MM:SS`, or `HH:MM:SS`. Leave both time prompts
+empty to download the full video. For example, `10:12` through `13:12`
+downloads a three-minute segment.
+
+### Non-interactive Mode
+
+Use `--download` for scripts or to start immediately from `download.conf`:
+
+```bash
+python main.py --download
+```
+
 ### Download a Single Video
 
 ```bash

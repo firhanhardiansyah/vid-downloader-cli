@@ -3,6 +3,7 @@ import json
 
 from core import __version__
 from core.download_config import load_download_config
+from core.interactive import collect_interactive_download
 from core.time_utils import parse_time_to_seconds
 
 
@@ -15,14 +16,24 @@ def main() -> None:
         raise SystemExit(0)
 
     if not args.download:
-        print("Video Downloader CLI")
-        print()
-        print("Use this command to start downloading:")
-        print("  python main.py --download")
-        print()
-        print("The default configuration is read from download.conf.")
-        print("Use --help to see all available options.")
-        raise SystemExit(0)
+        try:
+            interactive = collect_interactive_download(parse_download_input)
+        except (EOFError, KeyboardInterrupt):
+            print("\nDownload cancelled.")
+            raise SystemExit(0)
+
+        if interactive is None:
+            raise SystemExit(0)
+
+        execute_download(
+            urls=interactive.urls,
+            folder=interactive.folder,
+            quality=interactive.quality,
+            audio_only=interactive.audio_only,
+            start_time=interactive.start_time,
+            end_time=interactive.end_time,
+        )
+        return
 
     try:
         input_value = args.input or "download.conf"
@@ -38,20 +49,48 @@ def main() -> None:
         print(exc)
         raise SystemExit(1)
 
+    execute_download(
+        urls=urls,
+        folder=args.folder or config_download_dir or "videos",
+        quality=args.quality or config_quality or "best",
+        audio_only=args.audio,
+        simple=args.simple,
+        referer=args.referer,
+        cookies_from_browser=cookies_from_browser,
+        extra_headers=extra_headers,
+        filename_mode=args.filename_mode,
+        start_time=start_time,
+        end_time=end_time,
+    )
+
+
+def execute_download(
+    urls: list[str],
+    folder: str,
+    quality: str,
+    audio_only: bool = False,
+    simple: bool = False,
+    referer: str | None = None,
+    cookies_from_browser: tuple[str] | None = None,
+    extra_headers: dict | None = None,
+    filename_mode: str = "title_id",
+    start_time: int | float | None = None,
+    end_time: int | float | None = None,
+) -> None:
     from core.download_lock import DownloadDirectoryBusyError
     from core.downloader import download_videos
 
     try:
         download_videos(
             urls=urls,
-            folder=args.folder or config_download_dir or "videos",
-            quality=args.quality or config_quality or "best",
-            audio_only=args.audio,
-            simple=args.simple,
-            referer=args.referer,
+            folder=folder,
+            quality=quality,
+            audio_only=audio_only,
+            simple=simple,
+            referer=referer,
             cookies_from_browser=cookies_from_browser,
             extra_headers=extra_headers,
-            filename_mode=args.filename_mode,
+            filename_mode=filename_mode,
             start_time=start_time,
             end_time=end_time,
         )
@@ -168,6 +207,8 @@ def parse_download_input(
         with open(input_value, "r", encoding="utf-8") as file:
             urls = [line.strip() for line in file if line.strip()]
     else:
+        if not input_value.startswith(("http://", "https://")):
+            raise ValueError("Input must be an http:// or https:// URL.")
         urls = [input_value]
 
     if not urls:
