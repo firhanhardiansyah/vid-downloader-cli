@@ -163,8 +163,17 @@ Interrupted downloads retain their `.part` file. Run the same command again to
 resume when the source server supports range requests. Temporary fragments are
 removed after a successful download.
 
-Only one process may use a `DOWNLOAD_DIR` at a time. The small persistent
-`.vid-downloader.lock` file is an OS-lock anchor and contains no download data.
+Only one process may use a `DOWNLOAD_DIR` at a time. Lock anchors are stored
+outside the download directory in the user's cache, using a hash of the output
+path as the filename:
+
+- macOS: `~/Library/Caches/vid-downloader/locks/`
+- Linux: `~/.cache/vid-downloader/locks/`
+- Windows: `%LOCALAPPDATA%\vid-downloader\locks\`
+
+The cache lock files contain no media data and remain as stable OS-lock anchors
+to avoid inode race conditions. Legacy `.vid-downloader.lock` files in download
+folders can be removed after confirming no older downloader process is running.
 
 ## Test
 

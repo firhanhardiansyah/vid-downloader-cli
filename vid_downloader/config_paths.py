@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 
 
@@ -24,6 +25,21 @@ def get_global_config_path() -> Path:
         config_root = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
 
     return config_root / "vid-downloader" / DEFAULT_CONFIG_FILENAME
+
+
+def get_lock_cache_dir() -> Path:
+    if os.name == "nt":
+        cache_root = Path(
+            os.environ.get("LOCALAPPDATA", Path.home() / "AppData/Local")
+        )
+    elif sys.platform == "darwin":
+        cache_root = Path.home() / "Library/Caches"
+    else:
+        cache_root = Path(
+            os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")
+        )
+
+    return cache_root / "vid-downloader" / "locks"
 
 
 def find_default_config_path(working_directory: Path | None = None) -> Path:
