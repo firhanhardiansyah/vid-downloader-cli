@@ -83,7 +83,7 @@ def _download_videos_unlocked(
         "ffmpeg_location": imageio_ffmpeg.get_ffmpeg_exe(),
         "http_headers": http_headers,
         "overwrites": False,
-        "verbose": True,
+        "verbose": False,
         "extractor_args": {
             "generic": {"impersonate": ["chrome"]},
         },
