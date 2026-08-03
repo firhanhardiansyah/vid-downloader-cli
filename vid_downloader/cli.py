@@ -5,6 +5,7 @@ import sys
 from vid_downloader import __version__
 from vid_downloader.config_paths import (
     find_default_config_path,
+    get_default_download_dir,
     get_global_config_path,
     initialize_config,
 )
@@ -89,7 +90,11 @@ def main() -> None:
 
     execute_download(
         urls=urls,
-        folder=args.folder or config_download_dir or "videos",
+        folder=(
+            args.folder
+            or config_download_dir
+            or str(get_default_download_dir())
+        ),
         quality=args.quality or config_quality or "best",
         audio_only=args.audio,
         simple=args.simple,

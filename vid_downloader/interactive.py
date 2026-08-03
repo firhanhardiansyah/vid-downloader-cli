@@ -3,6 +3,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
+from vid_downloader.config_paths import get_default_download_dir
 from vid_downloader.time_utils import format_duration, parse_time_to_seconds
 
 
@@ -39,7 +40,7 @@ def collect_interactive_download(
         output_func=output_func,
     )
     folder = _prompt_folder(
-        default=source_folder or default_folder or "videos",
+        default=source_folder or default_folder or str(get_default_download_dir()),
         input_func=input_func,
     )
     quality = _prompt_quality(

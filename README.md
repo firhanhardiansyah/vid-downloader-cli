@@ -117,11 +117,13 @@ URLS=[
     "https://example.com/video2",
 ]
 
-DOWNLOAD_DIR=~/Downloads/videos
+DOWNLOAD_DIR=~/Downloads
 QUALITY=
 ```
 
-An empty `QUALITY` uses `best`. Supported values are `144`, `240`, `360`,
+If `DOWNLOAD_DIR` is empty or omitted, it defaults to the current user's
+`~/Downloads` directory on macOS, Linux, and Windows. An empty `QUALITY` uses
+`best`. Supported values are `144`, `240`, `360`,
 `480`, `720`, `1080`, and `best`. Relative download directories are resolved
 from the config file's directory.
 

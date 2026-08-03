@@ -4,6 +4,7 @@ import imageio_ffmpeg
 import yt_dlp
 from yt_dlp.utils import download_range_func
 
+from vid_downloader.config_paths import get_default_download_dir
 from vid_downloader.download_lock import DownloadDirectoryLock
 from vid_downloader.formats import build_format_option
 from vid_downloader.metadata import print_video_info
@@ -13,7 +14,7 @@ from vid_downloader.utils import ensure_folder
 
 def download_videos(
     urls,
-    folder="videos",
+    folder=None,
     quality="best",
     audio_only=False,
     simple=False,
@@ -24,6 +25,7 @@ def download_videos(
     start_time=None,
     end_time=None,
 ):
+    folder = folder or str(get_default_download_dir())
     ensure_folder(folder)
 
     with DownloadDirectoryLock(folder):

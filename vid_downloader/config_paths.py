@@ -8,9 +8,13 @@ URLS=[
     "https://example.com/video1",
 ]
 
-DOWNLOAD_DIR=~/Downloads/videos
+DOWNLOAD_DIR=~/Downloads
 QUALITY=
 """
+
+
+def get_default_download_dir() -> Path:
+    return (Path.home() / "Downloads").resolve()
 
 
 def get_global_config_path() -> Path:

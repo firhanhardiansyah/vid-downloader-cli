@@ -4,6 +4,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from vid_downloader.config_paths import get_default_download_dir
+
 
 @dataclass(frozen=True)
 class DownloadConfig:
@@ -21,7 +23,7 @@ def load_download_config(config_path: str) -> DownloadConfig:
         raise ValueError(f"Unable to read config file '{config_path}': {exc}") from exc
 
     urls_value = _find_value(content, "URLS", allow_multiline=True)
-    download_dir_value = _find_value(content, "DOWNLOAD_DIR")
+    download_dir_value = _find_value(content, "DOWNLOAD_DIR", required=False)
     quality_value = _find_value(content, "QUALITY", required=False)
 
     urls = _parse_urls(urls_value)
@@ -31,10 +33,11 @@ def load_download_config(config_path: str) -> DownloadConfig:
     if not urls:
         raise ValueError("URLS must contain at least one URL.")
 
-    if not download_dir:
-        raise ValueError("DOWNLOAD_DIR must not be empty.")
-
-    expanded_dir = Path(os.path.expandvars(download_dir)).expanduser()
+    expanded_dir = (
+        Path(os.path.expandvars(download_dir)).expanduser()
+        if download_dir
+        else get_default_download_dir()
+    )
     if not expanded_dir.is_absolute():
         expanded_dir = path.parent / expanded_dir
 
