@@ -26,6 +26,23 @@ vid-downloader
 vdl
 ```
 
+## Make commands
+
+On macOS and Linux, the included Makefile provides shortcuts for installation
+and development:
+
+```bash
+make install      # Install or update the CLI with pipx
+make reinstall    # Reinstall the existing pipx package
+make uninstall    # Remove the CLI
+make test         # Run the unit tests
+make dev-install  # Install in editable mode for development
+```
+
+`make install` and `make dev-install` run `pipx ensurepath` automatically.
+If pipx is unavailable, the Makefile exits without using administrator access
+and prints installation guidance for the current environment.
+
 ## Interactive usage
 
 Run the command and follow the prompts:
