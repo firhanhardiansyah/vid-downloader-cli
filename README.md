@@ -146,7 +146,7 @@ Leave both values empty in interactive mode to download the full video.
 -a, --audio                Download audio only
 -s, --simple               Use the simple yt-dlp format
 -f, --folder PATH          Override the download directory
---filename-mode MODE       title_id, title, or id
+--filename-mode MODE       title (default), title_id, or id
 -r, --referer URL          Send a Referer header
 -c, --cookies-browser NAME Load cookies from a browser
 --headers JSON             Send additional HTTP headers

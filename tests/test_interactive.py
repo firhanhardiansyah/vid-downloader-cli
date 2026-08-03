@@ -2,7 +2,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from vid_downloader.cli import normalize_command_alias, parse_download_input
+from vid_downloader.cli import (
+    build_parser,
+    normalize_command_alias,
+    parse_download_input,
+)
 from vid_downloader.interactive import collect_interactive_download
 
 
@@ -12,6 +16,11 @@ def input_from(answers):
 
 
 class InteractiveDownloadTests(unittest.TestCase):
+    def test_default_filename_mode_is_title(self):
+        args = build_parser().parse_args([])
+
+        self.assertEqual(args.filename_mode, "title")
+
     def test_download_subcommand_maps_to_non_interactive_flag(self):
         self.assertEqual(
             normalize_command_alias(["download", "https://example.com/video"]),

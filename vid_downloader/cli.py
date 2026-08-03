@@ -116,7 +116,7 @@ def execute_download(
     referer: str | None = None,
     cookies_from_browser: tuple[str] | None = None,
     extra_headers: dict | None = None,
-    filename_mode: str = "title_id",
+    filename_mode: str = "title",
     start_time: int | float | None = None,
     end_time: int | float | None = None,
 ) -> None:
@@ -194,9 +194,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--filename-mode",
-        default="title_id",
+        default="title",
         choices=["title_id", "title", "id"],
-        help="Filename format: title_id, title, or id",
+        help="Filename format: title (default), title_id, or id",
     )
 
     # Additional options for embedded/modal/protected sources
