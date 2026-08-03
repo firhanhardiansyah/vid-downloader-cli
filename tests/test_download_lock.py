@@ -1,7 +1,10 @@
 import tempfile
 import unittest
 
-from core.download_lock import DownloadDirectoryBusyError, DownloadDirectoryLock
+from vid_downloader.download_lock import (
+    DownloadDirectoryBusyError,
+    DownloadDirectoryLock,
+)
 
 
 class DownloadDirectoryLockTests(unittest.TestCase):

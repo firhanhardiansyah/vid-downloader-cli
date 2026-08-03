@@ -1,23 +1,51 @@
 import argparse
 import json
+import sys
 
-from core import __version__
-from core.download_config import load_download_config
-from core.interactive import collect_interactive_download
-from core.time_utils import parse_time_to_seconds
+from vid_downloader import __version__
+from vid_downloader.config_paths import (
+    find_default_config_path,
+    get_global_config_path,
+    initialize_config,
+)
+from vid_downloader.download_config import load_download_config
+from vid_downloader.interactive import collect_interactive_download
+from vid_downloader.time_utils import parse_time_to_seconds
 
 
 def main() -> None:
     parser = build_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(normalize_command_alias(sys.argv[1:]))
 
     if args.version:
         print("Video Downloader Version:", __version__)
         raise SystemExit(0)
 
+    if args.input == "config-path" and not args.download:
+        print(find_default_config_path())
+        raise SystemExit(0)
+
+    if args.input == "init" and not args.download:
+        config_path = args.config or get_global_config_path()
+        try:
+            created_path = initialize_config(config_path)
+        except ValueError as exc:
+            print(exc)
+            raise SystemExit(1)
+
+        print(f"Created config: {created_path}")
+        raise SystemExit(0)
+
+    default_config_path = str(
+        args.config or find_default_config_path()
+    )
+
     if not args.download:
         try:
-            interactive = collect_interactive_download(parse_download_input)
+            interactive = collect_interactive_download(
+                parse_download_input,
+                default_config_path=default_config_path,
+            )
         except (EOFError, KeyboardInterrupt):
             print("\nDownload cancelled.")
             raise SystemExit(0)
@@ -36,8 +64,18 @@ def main() -> None:
         return
 
     try:
-        input_value = args.input or "download.conf"
+        input_value = args.input or default_config_path
         urls, config_download_dir, config_quality = parse_download_input(input_value)
+
+        if args.input and not config_download_dir:
+            try:
+                _, default_dir, default_quality = parse_download_input(
+                    default_config_path
+                )
+                config_download_dir = default_dir
+                config_quality = default_quality
+            except ValueError:
+                pass
         extra_headers = parse_extra_headers(args.headers)
         cookies_from_browser = parse_cookies_from_browser(args.cookies_browser)
 
@@ -77,8 +115,8 @@ def execute_download(
     start_time: int | float | None = None,
     end_time: int | float | None = None,
 ) -> None:
-    from core.download_lock import DownloadDirectoryBusyError
-    from core.downloader import download_videos
+    from vid_downloader.download_lock import DownloadDirectoryBusyError
+    from vid_downloader.downloader import download_videos
 
     try:
         download_videos(
@@ -108,11 +146,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="Start downloading using download.conf or the provided input",
     )
     parser.add_argument(
+        "--config",
+        help="Use a specific download config file",
+    )
+    parser.add_argument(
         "input",
         nargs="?",
         help=(
-            "Video URL or download config file "
-            "(default: download.conf when omitted)"
+            "Video URL, config file, or command: download/init/config-path"
         ),
     )
     parser.add_argument(
@@ -194,6 +235,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     return parser
+
+
+def normalize_command_alias(arguments: list[str]) -> list[str]:
+    if arguments and arguments[0] == "download":
+        return ["--download", *arguments[1:]]
+
+    return arguments
 
 
 def parse_download_input(

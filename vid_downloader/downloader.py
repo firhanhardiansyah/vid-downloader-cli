@@ -4,11 +4,11 @@ import imageio_ffmpeg
 import yt_dlp
 from yt_dlp.utils import download_range_func
 
-from core.download_lock import DownloadDirectoryLock
-from core.formats import build_format_option
-from core.metadata import print_video_info
-from core.time_utils import resolve_download_range
-from core.utils import ensure_folder
+from vid_downloader.download_lock import DownloadDirectoryLock
+from vid_downloader.formats import build_format_option
+from vid_downloader.metadata import print_video_info
+from vid_downloader.time_utils import resolve_download_range
+from vid_downloader.utils import ensure_folder
 
 
 def download_videos(

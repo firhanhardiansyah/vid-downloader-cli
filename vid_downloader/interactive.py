@@ -3,7 +3,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from core.time_utils import format_duration, parse_time_to_seconds
+from vid_downloader.time_utils import format_duration, parse_time_to_seconds
 
 
 QUALITY_OPTIONS = {"144", "240", "360", "480", "720", "1080", "best"}
@@ -21,15 +21,20 @@ class InteractiveDownload:
 
 def collect_interactive_download(
     parse_input: Callable[[str], tuple[list[str], str | None, str | None]],
+    default_config_path: str = "download.conf",
     input_func: Callable[[str], str] = input,
     output_func: Callable[[str], None] = print,
 ) -> InteractiveDownload | None:
     output_func("Video Downloader")
     output_func("")
 
-    default_folder, default_quality = _load_config_defaults(parse_input)
+    default_folder, default_quality = _load_config_defaults(
+        parse_input,
+        default_config_path,
+    )
     urls, source_folder, source_quality = _prompt_source(
         parse_input=parse_input,
+        default_config_path=default_config_path,
         input_func=input_func,
         output_func=output_func,
     )
@@ -84,9 +89,10 @@ def collect_interactive_download(
 
 def _load_config_defaults(
     parse_input: Callable[[str], tuple[list[str], str | None, str | None]],
+    default_config_path: str,
 ) -> tuple[str | None, str | None]:
     try:
-        _, folder, quality = parse_input("download.conf")
+        _, folder, quality = parse_input(default_config_path)
         return folder, quality
     except (OSError, ValueError):
         return None, None
@@ -94,12 +100,13 @@ def _load_config_defaults(
 
 def _prompt_source(
     parse_input: Callable[[str], tuple[list[str], str | None, str | None]],
+    default_config_path: str,
     input_func: Callable[[str], str],
     output_func: Callable[[str], None],
 ) -> tuple[list[str], str | None, str | None]:
     while True:
-        source = input_func("URL or config [download.conf]: ").strip()
-        source = source or "download.conf"
+        source = input_func(f"URL or config [{default_config_path}]: ").strip()
+        source = source or default_config_path
 
         try:
             return parse_input(source)

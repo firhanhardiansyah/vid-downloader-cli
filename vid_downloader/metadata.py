@@ -1,4 +1,4 @@
-from core.time_utils import format_duration
+from vid_downloader.time_utils import format_duration
 
 
 def print_video_info(

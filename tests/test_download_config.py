@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from core.download_config import load_download_config
+from vid_downloader.download_config import load_download_config
 
 
 class DownloadConfigTests(unittest.TestCase):

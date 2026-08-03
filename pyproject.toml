@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vid-downloader-cli"
+version = "1.1.0"
+description = "Interactive and scriptable video downloader powered by yt-dlp"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "imageio-ffmpeg>=0.6.0",
+    "yt-dlp>=2026.3.17",
+]
+
+[project.scripts]
+vid-downloader = "vid_downloader.cli:main"
+vdl = "vid_downloader.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["vid_downloader*"]

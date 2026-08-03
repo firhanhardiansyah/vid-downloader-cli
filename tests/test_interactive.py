@@ -2,8 +2,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from core.cli import parse_download_input
-from core.interactive import collect_interactive_download
+from vid_downloader.cli import normalize_command_alias, parse_download_input
+from vid_downloader.interactive import collect_interactive_download
 
 
 def input_from(answers):
@@ -12,6 +12,12 @@ def input_from(answers):
 
 
 class InteractiveDownloadTests(unittest.TestCase):
+    def test_download_subcommand_maps_to_non_interactive_flag(self):
+        self.assertEqual(
+            normalize_command_alias(["download", "https://example.com/video"]),
+            ["--download", "https://example.com/video"],
+        )
+
     def test_collects_values_and_confirms_download(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             config_path = Path(temp_dir) / "download.conf"

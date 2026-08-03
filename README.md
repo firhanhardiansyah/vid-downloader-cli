@@ -1,121 +1,37 @@
-# Video Downloader CLI (yt-dlp)
+# Vid Downloader CLI
 
-A simple and flexible CLI video downloader built with Python and `yt-dlp`.
+A terminal-first video downloader powered by `yt-dlp`. It supports an
+interactive workflow, scriptable commands, partial downloads, resumable
+downloads, and an output-directory lock that prevents concurrent writes.
 
-This tool supports:
+## Install
 
-- Downloading the best available video quality
-- Downloading a specific resolution (360p, 480p, 720p, 1080p)
-- Downloading audio only
-- Batch downloading from a single download config
-- Simple mode for faster downloads
-- Custom output folder selection
-- Flexible filename modes
-- Optional referer, cookies, and custom headers for protected or embedded sources
-- Safe resume from `.part` files after an interrupted download
-- Output-directory locking to prevent concurrent writes and race conditions
-
-## 1. Project Setup
-
-### Create a Virtual Environment
+The recommended installation uses `pipx`, making the command available from
+any directory:
 
 ```bash
-python -m venv .venv
+pipx install .
 ```
 
-### Activate the Virtual Environment
-
-**Windows**
+For development, install the project in editable mode:
 
 ```bash
-.venv\Scripts\activate
+python -m pip install -e .
 ```
 
-**Mac / Linux**
+This installs two equivalent terminal commands:
 
 ```bash
-source .venv/bin/activate
+vid-downloader
+vdl
 ```
 
-### Install Requirements
+## Interactive usage
+
+Run the command and follow the prompts:
 
 ```bash
-pip install -r requirements.txt
-```
-
-## 2. Requirements
-
-Create a `requirements.txt` file:
-
-```txt
-yt-dlp
-imageio-ffmpeg
-```
-
-## 3. Project Structure
-
-```bash
-video_downloader/
-│
-├── core/
-│   ├── downloader.py
-│   └── utils.py
-│
-├── videos/
-├── download.conf
-├── download.example.conf
-├── main.py
-├── requirements.txt
-├── README.md
-├── .gitignore
-└── venv/
-```
-
-## 4. How to Use
-
-### Prepare the Download Config
-
-Create a private `download.conf` file based on the example:
-
-**Windows**
-
-```bash
-copy download.example.conf download.conf
-```
-
-**Mac / Linux**
-
-```bash
-cp download.example.conf download.conf
-```
-
-Example `download.conf`:
-
-```ini
-URLS=[
-    "https://example.com/video1",
-    "https://example.com/video2",
-    "https://example.com/video3",
-]
-
-DOWNLOAD_DIR=~/Downloads/videos
-
-# Empty means best quality.
-QUALITY=
-```
-
-`DOWNLOAD_DIR` may be an absolute path outside this project, a path starting
-with `~`, or a relative path. Relative paths are resolved from the directory
-containing `download.conf`.
-
-## 5. Basic Usage
-
-### Interactive Mode
-
-Run the CLI without arguments and follow the prompts:
-
-```bash
-python main.py
+vid-downloader
 ```
 
 ```text
@@ -129,8 +45,8 @@ Start time [from beginning]: 10:12
 End time [until finished]: 13:12
 
 Download summary
-URLs      : 3
-Directory : /Users/your-name/Downloads/videos
+URLs      : 1
+Directory : /Users/user/Downloads/videos
 Quality   : best
 Mode      : Video
 Range     : 10:12 - 13:12
@@ -138,284 +54,118 @@ Range     : 10:12 - 13:12
 Start download? [Y/n]:
 ```
 
-Press Enter to use each displayed default. `DOWNLOAD_DIR` and `QUALITY` default
-to the values in `download.conf`, even when entering a URL directly. The final
-confirmation defaults to `Yes`, so pressing Enter starts the download. Use
-`Ctrl+C` at any prompt to cancel cleanly.
+Press Enter to accept a displayed default. Pressing Enter at the final prompt
+starts the download; enter `n` to cancel. `Ctrl+C` cancels cleanly.
 
-Time values accept seconds, `MM:SS`, or `HH:MM:SS`. Leave both time prompts
-empty to download the full video. For example, `10:12` through `13:12`
-downloads a three-minute segment.
+## Non-interactive usage
 
-### Non-interactive Mode
-
-Use `--download` for scripts or to start immediately from `download.conf`:
+Use the `download` subcommand for scripts and automation:
 
 ```bash
-python main.py --download
+vid-downloader download
+vid-downloader download https://example.com/video
+vid-downloader download https://example.com/video --quality 720
+vid-downloader download https://example.com/video --audio
+vid-downloader download --folder /path/to/downloads
 ```
 
-### Download a Single Video
+`--download` remains available as a backward-compatible alias.
+
+The legacy command remains available for development compatibility:
 
 ```bash
-python main.py --download https://example.com/video
+python main.py
 ```
 
-### Download Everything in the Config
+## Configuration
+
+Create a global config:
 
 ```bash
-python main.py --download
+vid-downloader init
 ```
 
-You can also provide a config file explicitly:
+Show the config selected for the current directory:
 
 ```bash
-python main.py --download /path/to/my-download.conf
+vid-downloader config-path
 ```
 
-### Download Audio Only
+Config lookup order:
+
+1. A file passed with `--config`.
+2. `download.conf` in the current directory.
+3. The global user config.
+
+Global config locations:
+
+- macOS/Linux: `~/.config/vid-downloader/download.conf`, respecting
+  `$XDG_CONFIG_HOME` when set.
+- Windows: `%APPDATA%\vid-downloader\download.conf`.
+
+Use a custom config for one run:
 
 ```bash
-python main.py --download https://example.com/video --audio
+vid-downloader --config /path/to/download.conf
 ```
 
-### Download in 720p
-
-```bash
-python main.py --download https://example.com/video --quality 720
-```
-
-### Use Simple Mode
-
-```bash
-python main.py --download https://example.com/video --simple
-```
-
-## 6. Command-Line Options
-
-| Option                    | Description                                           |
-| ------------------------- | ----------------------------------------------------- |
-| `--download`              | Start the download process                            |
-| `input`                   | A video URL or config file (defaults to `download.conf`) |
-| `-q`, `--quality`         | Video quality: `360`, `480`, `720`, `1080`, or `best` |
-| `-a`, `--audio`           | Download audio only                                   |
-| `-s`, `--simple`          | Enable simple mode for faster downloads               |
-| `-v`, `--version`         | Show application version                              |
-| `-f`, `--folder`          | Override `DOWNLOAD_DIR` from the config               |
-| `--filename-mode`         | Set filename format: `title_id`, `title`, or `id`     |
-| `-r`, `--referer`         | Set a referer URL for embedded or protected media     |
-| `-c`, `--cookies-browser` | Load cookies from a browser session                   |
-| `--headers`               | Pass extra HTTP headers as a JSON object              |
-
-## 7. Download Modes
-
-| Mode                       | Format                                | Description                                        |
-| -------------------------- | ------------------------------------- | -------------------------------------------------- |
-| Best                       | `bestvideo+bestaudio/best`            | Best available quality with merged video and audio |
-| 360p / 480p / 720p / 1080p | `bestvideo[height<=X]+bestaudio/best` | Download a specific resolution                     |
-| Audio                      | `bestaudio/best`                      | Download audio only                                |
-| Simple                     | `best`                                | Faster download using a simpler format             |
-
-## 8. Output Folder
-
-Set the output directory in `download.conf`. It can be outside the project:
+Config format:
 
 ```ini
-DOWNLOAD_DIR=/Users/your-name/Downloads/videos
+URLS=[
+    "https://example.com/video1",
+    "https://example.com/video2",
+]
+
+DOWNLOAD_DIR=~/Downloads/videos
+QUALITY=
 ```
 
-For a one-off override, use `--folder`:
+An empty `QUALITY` uses `best`. Supported values are `144`, `240`, `360`,
+`480`, `720`, `1080`, and `best`. Relative download directories are resolved
+from the config file's directory.
+
+## Time ranges
+
+Start and end times accept seconds, `MM:SS`, or `HH:MM:SS`:
 
 ```bash
-python main.py --download --folder /another/output/directory
+vid-downloader download --start 10:12 --end 13:12
 ```
 
-## 9. Filename Modes
+Leave both values empty in interactive mode to download the full video.
 
-The downloader supports multiple filename formats.
+## Options
 
-### Available Modes
+```text
+--download                 Run without interactive prompts
+--config PATH              Use a specific config file
+-q, --quality QUALITY      Override config quality
+-a, --audio                Download audio only
+-s, --simple               Use the simple yt-dlp format
+-f, --folder PATH          Override the download directory
+--filename-mode MODE       title_id, title, or id
+-r, --referer URL          Send a Referer header
+-c, --cookies-browser NAME Load cookies from a browser
+--headers JSON             Send additional HTTP headers
+--start TIME               Partial-download start time
+--end TIME                 Partial-download end time
+-v, --version              Print the version
+```
 
-| Mode       | Example Output                |
-| ---------- | ----------------------------- |
-| `title_id` | `My Video Title [abc123].mp4` |
-| `title`    | `My Video Title.mp4`          |
-| `id`       | `abc123.mp4`                  |
+Run `vid-downloader --help` for the complete generated help.
 
-### Example Usage
+## Resume and concurrency safety
 
-Use title + ID:
+Interrupted downloads retain their `.part` file. Run the same command again to
+resume when the source server supports range requests. Temporary fragments are
+removed after a successful download.
+
+Only one process may use a `DOWNLOAD_DIR` at a time. The small persistent
+`.vid-downloader.lock` file is an OS-lock anchor and contains no download data.
+
+## Test
 
 ```bash
-python main.py --download https://example.com/video --filename-mode title_id
+python -m unittest discover -s tests -v
 ```
-
-Use title only:
-
-```bash
-python main.py --download https://example.com/video --filename-mode title
-```
-
-Use ID only:
-
-```bash
-python main.py --download https://example.com/video --filename-mode id
-```
-
-## 10. Advanced Usage
-
-### Use a Referer Header
-
-Useful for embedded or modal-based video sources:
-
-```bash
-python main.py --download https://example.com/video --referer https://example.com/page
-```
-
-### Load Cookies from a Browser
-
-Example using Chrome:
-
-```bash
-python main.py --download https://example.com/video --cookies-browser chrome
-```
-
-Supported browsers:
-
-- `chrome`
-- `firefox`
-- `edge`
-- `brave`
-- `opera`
-- `chromium`
-- `safari`
-
-### Send Extra Headers
-
-```bash
-python main.py --download https://example.com/video --headers "{\"User-Agent\":\"Mozilla/5.0\"}"
-```
-
-Example with multiple headers:
-
-```bash
-python main.py --download https://example.com/video --headers "{\"User-Agent\":\"Mozilla/5.0\",\"X-Test\":\"123\"}"
-```
-
-## 11. Example Commands
-
-### Download Best Quality
-
-```bash
-python main.py --download https://example.com/video
-```
-
-### Download 720p
-
-```bash
-python main.py --download https://example.com/video --quality 720
-```
-
-### Download Audio Only
-
-```bash
-python main.py --download https://example.com/video --audio
-```
-
-### Download Using Simple Mode
-
-```bash
-python main.py --download https://example.com/video --simple
-```
-
-### Batch Download from Config
-
-```bash
-python main.py --download
-```
-
-### Batch Download 720p to a Custom Folder
-
-```bash
-python main.py --download --quality 720 --folder /path/to/downloads
-```
-
-### Download Using ID as Filename
-
-```bash
-python main.py --download https://example.com/video --filename-mode id
-```
-
-### Download with Browser Cookies and Referer
-
-```bash
-python main.py --download https://example.com/video --referer https://example.com/page --cookies-browser chrome
-```
-
-## 12. Running the Project
-
-Each time you want to run the project:
-
-**Windows**
-
-```bash
-venv\Scripts\activate
-python main.py --download
-```
-
-**Mac / Linux**
-
-```bash
-source venv/bin/activate
-python main.py --download
-```
-
-## 13. .gitignore
-
-```gitignore
-venv/
-__pycache__/
-videos/
-*.mp4
-*.mp3
-```
-
-## 14. Features
-
-- Video download
-- Audio-only download
-- Batch download from `download.conf`
-- Quality selection
-- Simple mode
-- Custom output folder
-- Flexible filename modes
-- Referer support
-- Browser cookie support
-- Custom HTTP headers
-- CLI-based workflow
-
-## 15. Notes
-
-- If you download high-quality video where video and audio are separate streams, **FFmpeg is required**.
-- This project uses `imageio-ffmpeg` to provide FFmpeg automatically in Python environments.
-- Some websites may require a referer, cookies, or custom headers to allow media downloads.
-- If multiple videos have the same title, using `title_id` or `id` is recommended to avoid filename conflicts.
-- If a download is interrupted, run `python main.py --download` again. The downloader
-  will reuse the existing `.part` file when the source server supports resuming.
-- Temporary fragments are removed after a successful download. An unfinished
-  `.part` file is intentionally retained so the next run can resume it.
-- Only one downloader process may use the same `DOWNLOAD_DIR` at a time. A second
-  process exits safely instead of writing to the same files concurrently.
-- `.vid-downloader.lock` is a small persistent lock anchor, not download data.
-  It is intentionally retained because deleting an OS lock file can introduce
-  an inode race between downloader processes.
-
-Check FFmpeg manually if needed:
-
-```bash
-ffmpeg -version
-```
-
-## 16. Author
-
-Built with Python and `yt-dlp`.
