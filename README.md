@@ -126,8 +126,8 @@ deactivate
 
 ## Make commands
 
-On macOS and Linux, the included Makefile provides shortcuts for installation
-and development:
+The included Makefile provides shortcuts for installation and development on
+macOS, Linux, and Windows environments that have GNU Make installed:
 
 ```bash
 make install      # Install or update the CLI with pipx
@@ -153,7 +153,7 @@ vid-downloader
 Video Downloader
 
 URL or config [download.conf]:
-Download directory [~/Downloads]:
+Download directory [/Users/user/Gallery]:
 Quality [best]:
 Audio only? [y/N]:
 Start time [from beginning]: 10:12
@@ -161,7 +161,7 @@ End time [until finished]: 13:12
 
 Download summary
 URLs      : 1
-Directory : /Users/user/Downloads
+Directory : /Users/user/Gallery
 Quality   : best
 Mode      : Video
 Range     : 10:12 - 13:12
@@ -232,15 +232,27 @@ URLS=[
     "https://example.com/video2",
 ]
 
-DOWNLOAD_DIR=~/Downloads
+# Empty means the directory where the CLI is started.
+DOWNLOAD_DIR=
 QUALITY=
 ```
 
-If `DOWNLOAD_DIR` is empty or omitted, it defaults to the current user's
-`~/Downloads` directory on macOS, Linux, and Windows. An empty `QUALITY` uses
-`best`. Supported values are `144`, `240`, `360`,
+If `DOWNLOAD_DIR` is empty or omitted, it defaults to the current working
+directory on macOS, Linux, and Windows. A non-empty value in the config takes
+priority, while `--folder` overrides both. An empty `QUALITY` uses `best`.
+Supported values are `144`, `240`, `360`,
 `480`, `720`, `1080`, and `best`. Relative download directories are resolved
 from the config file's directory.
+
+For example, with an empty `DOWNLOAD_DIR`:
+
+```bash
+cd ~/Gallery
+vdl
+```
+
+The default output shown by the prompt will be `~/Gallery`. On Windows, running
+the CLI from `C:\Users\user\Gallery` uses that directory in the same way.
 
 ## Time ranges
 
