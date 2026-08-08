@@ -4,26 +4,124 @@ A terminal-first video downloader powered by `yt-dlp`. It supports an
 interactive workflow, scriptable commands, partial downloads, resumable
 downloads, and an output-directory lock that prevents concurrent writes.
 
-## Install
+## macOS guide
 
-The recommended installation uses `pipx`, making the command available from
-any directory:
+### Global CLI installation with pipx
+
+Install pipx with Homebrew. Administrator access is not required:
 
 ```bash
+brew install pipx
+pipx ensurepath
+```
+
+Open a new terminal, clone the project, and install it:
+
+```bash
+git clone <repository-url>
+cd vid-downloader-cli
 pipx install .
 ```
 
-For development, install the project in editable mode:
+Verify both installed commands:
 
 ```bash
-python -m pip install -e .
+vid-downloader --version
+vdl --version
 ```
 
-This installs two equivalent terminal commands:
+The commands can now be used from any directory. After updating the source,
+run this inside the project directory:
 
 ```bash
-vid-downloader
-vdl
+pipx install --force .
+```
+
+### Local development with a virtual environment
+
+```bash
+git clone <repository-url>
+cd vid-downloader-cli
+
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -e .
+```
+
+Run the downloader using any of these commands:
+
+```bash
+python3 main.py download
+vid-downloader download
+vdl download
+```
+
+The CLI commands are available while the virtual environment is active. Exit
+the environment with:
+
+```bash
+deactivate
+```
+
+## Windows guide
+
+The commands below use PowerShell.
+
+### Global CLI installation with pipx
+
+Install pipx for the current user. Administrator access is not required:
+
+```powershell
+py -m pip install --user pipx
+py -m pipx ensurepath
+```
+
+Close and reopen PowerShell so the updated `PATH` is loaded. Then clone and
+install the project:
+
+```powershell
+git clone <repository-url>
+cd vid-downloader-cli
+pipx install .
+```
+
+Verify both installed commands:
+
+```powershell
+vid-downloader --version
+vdl --version
+```
+
+After updating the source, run this inside the project directory:
+
+```powershell
+pipx install --force .
+```
+
+### Local development with a virtual environment
+
+```powershell
+git clone <repository-url>
+cd vid-downloader-cli
+
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+py -m pip install -e .
+```
+
+Run the downloader using any of these commands:
+
+```powershell
+py main.py download
+vid-downloader download
+vdl download
+```
+
+The `-e` option installs the project in editable mode, so source changes are
+immediately available. Exit the virtual environment with:
+
+```powershell
+deactivate
 ```
 
 ## Make commands
@@ -55,7 +153,7 @@ vid-downloader
 Video Downloader
 
 URL or config [download.conf]:
-Download directory [~/Downloads/videos]:
+Download directory [~/Downloads]:
 Quality [best]:
 Audio only? [y/N]:
 Start time [from beginning]: 10:12
@@ -63,7 +161,7 @@ End time [until finished]: 13:12
 
 Download summary
 URLs      : 1
-Directory : /Users/user/Downloads/videos
+Directory : /Users/user/Downloads
 Quality   : best
 Mode      : Video
 Range     : 10:12 - 13:12
@@ -91,7 +189,7 @@ vid-downloader download --folder /path/to/downloads
 The legacy command remains available for development compatibility:
 
 ```bash
-python main.py
+python3 main.py download
 ```
 
 ## Configuration
