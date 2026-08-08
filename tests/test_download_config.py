@@ -44,7 +44,7 @@ class DownloadConfigTests(unittest.TestCase):
             self.assertEqual(config.download_dir, str(output_dir.resolve()))
             self.assertEqual(config.quality, "720")
 
-    def test_empty_download_directory_uses_user_downloads(self):
+    def test_empty_download_directory_uses_working_directory(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             config_path = Path(temp_dir) / "download.conf"
             config_path.write_text(
@@ -56,10 +56,10 @@ class DownloadConfigTests(unittest.TestCase):
 
             self.assertEqual(
                 config.download_dir,
-                str((Path.home() / "Downloads").resolve()),
+                str(Path.cwd().resolve()),
             )
 
-    def test_missing_download_directory_uses_user_downloads(self):
+    def test_missing_download_directory_uses_working_directory(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             config_path = Path(temp_dir) / "download.conf"
             config_path.write_text(
@@ -71,7 +71,7 @@ class DownloadConfigTests(unittest.TestCase):
 
             self.assertEqual(
                 config.download_dir,
-                str((Path.home() / "Downloads").resolve()),
+                str(Path.cwd().resolve()),
             )
 
     def test_rejects_invalid_quality(self):

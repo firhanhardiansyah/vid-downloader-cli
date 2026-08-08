@@ -6,12 +6,20 @@ from unittest.mock import patch
 
 from vid_downloader.config_paths import (
     find_default_config_path,
+    get_default_download_dir,
     get_global_config_path,
     initialize_config,
 )
 
 
 class ConfigPathsTests(unittest.TestCase):
+    def test_default_download_dir_uses_working_directory(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self.assertEqual(
+                get_default_download_dir(Path(temp_dir)),
+                Path(temp_dir).resolve(),
+            )
+
     def test_local_config_has_priority(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             local_config = Path(temp_dir) / "download.conf"

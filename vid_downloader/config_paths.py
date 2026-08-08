@@ -9,13 +9,14 @@ URLS=[
     "https://example.com/video1",
 ]
 
-DOWNLOAD_DIR=~/Downloads
+DOWNLOAD_DIR=
 QUALITY=
 """
 
 
-def get_default_download_dir() -> Path:
-    return (Path.home() / "Downloads").resolve()
+def get_default_download_dir(working_directory: Path | None = None) -> Path:
+    """Return the directory where the CLI was started."""
+    return (working_directory or Path.cwd()).resolve()
 
 
 def get_global_config_path() -> Path:
