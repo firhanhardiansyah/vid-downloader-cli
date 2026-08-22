@@ -52,6 +52,21 @@ class ConfigPathsTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "already exists"):
                 initialize_config(config_path)
 
+    def test_initialize_config_can_replace_existing_file_explicitly(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config_path = Path(temp_dir) / "download.conf"
+            config_path.write_text("old content", encoding="utf-8")
+
+            initialize_config(
+                config_path,
+                download_dir="~/Downloads",
+                overwrite=True,
+            )
+
+            content = config_path.read_text(encoding="utf-8")
+            self.assertIn("DOWNLOAD_DIR=~/Downloads", content)
+            self.assertNotIn("old content", content)
+
 
 if __name__ == "__main__":
     unittest.main()

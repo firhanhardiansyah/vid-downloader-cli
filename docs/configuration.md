@@ -51,11 +51,23 @@ vdl --config /path/to/download.conf
 
 ## Global config
 
-Create it with:
+Create or reconfigure it with:
 
 ```bash
 vdl init
 ```
+
+The setup asks whether downloads should default to the current directory,
+`~/Downloads`, or a custom directory. If the config already exists, it shows
+the selected path and asks before overwriting it:
+
+```text
+Configuration already exists: /path/to/download.conf
+Overwrite it? [y/N]:
+```
+
+Press Enter to keep the existing config unchanged. The same setup runs
+automatically the first time `vdl` is started without a local or global config.
 
 Default locations:
 

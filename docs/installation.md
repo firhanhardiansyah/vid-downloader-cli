@@ -76,6 +76,26 @@ vid-downloader --version
 
 Both names run the same CLI.
 
+Run the CLI once to complete the initial setup:
+
+```bash
+vdl
+```
+
+If no global config exists, choose a default download directory:
+
+```text
+Default download directory
+
+1. Current directory (where the CLI is started)
+2. ~/Downloads
+3. Custom directory
+Select [1]:
+```
+
+Press Enter to use the directory where `vdl` is started. The selection is
+stored in the global `download.conf` and is only requested once.
+
 ## Install with Make
 
 If GNU Make is available:
@@ -102,6 +122,10 @@ With Make:
 git pull
 make reinstall
 ```
+
+Reinstalling replaces the CLI environment but does not remove or recreate the
+global `download.conf`. The existing download-directory setting remains in
+effect. Run `vdl init` only when you want to change it.
 
 ## Editable tool installation
 

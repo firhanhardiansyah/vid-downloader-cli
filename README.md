@@ -23,14 +23,23 @@ and safely resume interrupted downloads.
 git clone https://github.com/firhanhardiansyah/vid-downloader-cli.git
 cd vid-downloader-cli
 uv tool install .
+```
+
+If `vdl` is not recognized after installation, update the shell `PATH` once and
+open a new terminal:
+
+```bash
 uv tool update-shell
 ```
 
-Open a new terminal after the first installation, then start interactive mode:
+Then start interactive mode:
 
 ```bash
 vdl
 ```
+
+On first use, select whether downloads should default to the current directory,
+`~/Downloads`, or a custom directory. Reinstalling the CLI keeps this setting.
 
 The full command name is also available:
 
@@ -50,7 +59,7 @@ vid-downloader
 | `vdl download URL --start TIME --end TIME` | `vdl download https://example.com/video --start 10:12 --end 13:12` | Download only the selected time range |
 | `vdl download URL --folder DIRECTORY` | `vdl download https://example.com/video --folder ~/Downloads/Videos` | Download to a specific directory |
 | `vdl download --config PATH` | `vdl download --config ~/Downloads/download.conf` | Download using a specific config file |
-| `vdl init` | `vdl init` | Create the global `download.conf` |
+| `vdl init` | `vdl init` | Create or reconfigure the global `download.conf` |
 | `vdl config-path` | `vdl config-path` | Show the config selected for the current directory |
 | `vdl --help` | `vdl --help` | Show all CLI options |
 | `vdl --version` | `vdl --version` | Show the installed version |

@@ -1,14 +1,15 @@
 import argparse
 import json
 import sys
+from pathlib import Path
 
 from vid_downloader import __version__
 from vid_downloader.config_paths import (
     find_default_config_path,
     get_default_download_dir,
     get_global_config_path,
-    initialize_config,
 )
+from vid_downloader.config_setup import configure_download_directory
 from vid_downloader.download_config import load_download_config
 from vid_downloader.interactive import collect_interactive_download
 from vid_downloader.time_utils import parse_time_to_seconds
@@ -29,23 +30,42 @@ def main() -> None:
     if args.input == "init" and not args.download:
         config_path = args.config or get_global_config_path()
         try:
-            created_path = initialize_config(config_path)
+            created_path = configure_download_directory(config_path)
+        except (EOFError, KeyboardInterrupt):
+            print("\nConfiguration cancelled.")
+            raise SystemExit(0)
         except ValueError as exc:
             print(exc)
             raise SystemExit(1)
 
-        print(f"Created config: {created_path}")
+        if created_path:
+            print(f"Saved config: {created_path}")
         raise SystemExit(0)
 
-    default_config_path = str(
-        args.config or find_default_config_path()
+    default_config_path = (
+        Path(args.config or find_default_config_path()).expanduser().resolve()
     )
 
     if not args.download:
+        if _needs_first_run_setup(args.config, default_config_path):
+            try:
+                print("No global configuration found. Let's create one.")
+                created_path = configure_download_directory(default_config_path)
+            except (EOFError, KeyboardInterrupt):
+                print("\nConfiguration cancelled.")
+                raise SystemExit(0)
+            except ValueError as exc:
+                print(exc)
+                raise SystemExit(1)
+
+            if created_path:
+                print(f"Saved config: {created_path}")
+                print("")
+
         try:
             interactive = collect_interactive_download(
                 parse_download_input,
-                default_config_path=default_config_path,
+                default_config_path=str(default_config_path),
             )
         except (EOFError, KeyboardInterrupt):
             print("\nDownload cancelled.")
@@ -65,13 +85,13 @@ def main() -> None:
         return
 
     try:
-        input_value = args.input or default_config_path
+        input_value = args.input or str(default_config_path)
         urls, config_download_dir, config_quality = parse_download_input(input_value)
 
         if args.input and not config_download_dir:
             try:
                 _, default_dir, default_quality = parse_download_input(
-                    default_config_path
+                    str(default_config_path)
                 )
                 config_download_dir = default_dir
                 config_quality = default_quality
@@ -105,6 +125,16 @@ def main() -> None:
         start_time=start_time,
         end_time=end_time,
     )
+
+
+def _needs_first_run_setup(
+    explicit_config: str | None,
+    selected_config: Path,
+) -> bool:
+    if explicit_config or selected_config.exists():
+        return False
+
+    return selected_config == get_global_config_path().resolve()
 
 
 def execute_download(

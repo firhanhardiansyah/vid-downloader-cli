@@ -4,12 +4,12 @@ from pathlib import Path
 
 
 DEFAULT_CONFIG_FILENAME = "download.conf"
-DEFAULT_CONFIG_CONTENT = """\
+DEFAULT_CONFIG_TEMPLATE = """\
 URLS=[
     "https://example.com/video1",
 ]
 
-DOWNLOAD_DIR=
+DOWNLOAD_DIR={download_dir}
 QUALITY=
 """
 
@@ -52,14 +52,21 @@ def find_default_config_path(working_directory: Path | None = None) -> Path:
     return get_global_config_path()
 
 
-def initialize_config(config_path: str | Path | None = None) -> Path:
+def initialize_config(
+    config_path: str | Path | None = None,
+    download_dir: str = "",
+    overwrite: bool = False,
+) -> Path:
     path = Path(config_path).expanduser() if config_path else get_global_config_path()
     path = path.resolve()
     path.parent.mkdir(parents=True, exist_ok=True)
+    mode = "w" if overwrite else "x"
 
     try:
-        with path.open("x", encoding="utf-8") as config_file:
-            config_file.write(DEFAULT_CONFIG_CONTENT)
+        with path.open(mode, encoding="utf-8") as config_file:
+            config_file.write(
+                DEFAULT_CONFIG_TEMPLATE.format(download_dir=download_dir)
+            )
     except FileExistsError as exc:
         raise ValueError(f"Config file already exists: '{path}'.") from exc
     except OSError as exc:
