@@ -153,6 +153,7 @@ vid-downloader
 Video Downloader
 
 URL: https://example.com/video
+Advanced options? [y/N]: y
 Download directory [/Users/user/Gallery]:
 Quality [best]:
 Audio only? [y/N]:
@@ -176,6 +177,11 @@ Interactive mode always asks for a direct HTTP/HTTPS URL. It does not take the
 URL from `download.conf`; the config is only used for defaults such as
 `DOWNLOAD_DIR` and `QUALITY`. To download all entries in `URLS`, use the
 non-interactive `vid-downloader download` command.
+
+Press Enter or answer `n` at `Advanced options? [y/N]` to skip the directory,
+quality, audio-only, and time-range prompts. The CLI then uses the config
+defaults and continues to `Start download? [Y/n]`. Answer `y` to customize
+those options.
 
 ## Non-interactive usage
 

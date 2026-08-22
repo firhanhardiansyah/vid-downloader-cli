@@ -38,25 +38,36 @@ def collect_interactive_download(
         input_func=input_func,
         output_func=output_func,
     )
-    folder = _prompt_folder(
-        default=default_folder or str(get_default_download_dir()),
-        input_func=input_func,
-    )
-    quality = _prompt_quality(
-        default=default_quality or "best",
-        input_func=input_func,
-        output_func=output_func,
-    )
-    audio_only = _prompt_yes_no(
-        "Audio only? [y/N]: ",
+    use_advanced_options = _prompt_yes_no(
+        "Advanced options? [y/N]: ",
         default=False,
         input_func=input_func,
         output_func=output_func,
     )
-    start_time, end_time = _prompt_time_range(
-        input_func=input_func,
-        output_func=output_func,
-    )
+
+    folder = default_folder or str(get_default_download_dir())
+    quality = default_quality or "best"
+    audio_only = False
+    start_time = None
+    end_time = None
+
+    if use_advanced_options:
+        folder = _prompt_folder(default=folder, input_func=input_func)
+        quality = _prompt_quality(
+            default=quality,
+            input_func=input_func,
+            output_func=output_func,
+        )
+        audio_only = _prompt_yes_no(
+            "Audio only? [y/N]: ",
+            default=False,
+            input_func=input_func,
+            output_func=output_func,
+        )
+        start_time, end_time = _prompt_time_range(
+            input_func=input_func,
+            output_func=output_func,
+        )
 
     output_func("")
     output_func("Download summary")

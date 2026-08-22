@@ -42,7 +42,16 @@ class InteractiveDownloadTests(unittest.TestCase):
                 parse_input=parse_download_input,
                 default_config_path=str(config_path),
                 input_func=input_from(
-                    ["https://example.com/video", "", "", "y", "", "", "yes"]
+                    [
+                        "https://example.com/video",
+                        "y",
+                        "",
+                        "",
+                        "y",
+                        "",
+                        "",
+                        "yes",
+                    ]
                 ),
                 output_func=output.append,
             )
@@ -66,7 +75,16 @@ class InteractiveDownloadTests(unittest.TestCase):
             result = collect_interactive_download(
                 parse_input=parse_download_input,
                 input_func=input_from(
-                    ["https://example.com/video", temp_dir, "", "", "", "", "n"]
+                    [
+                        "https://example.com/video",
+                        "y",
+                        temp_dir,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "n",
+                    ]
                 ),
                 output_func=output.append,
             )
@@ -78,13 +96,16 @@ class InteractiveDownloadTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             result = collect_interactive_download(
                 parse_input=parse_download_input,
-                input_func=input_from(
-                    ["https://example.com/video", temp_dir, "", "", "", "", ""]
-                ),
+                input_func=input_from(["https://example.com/video", "", ""]),
                 output_func=lambda _message: None,
             )
 
             self.assertIsNotNone(result)
+            self.assertEqual(result.folder, str(Path.cwd().resolve()))
+            self.assertEqual(result.quality, "best")
+            self.assertFalse(result.audio_only)
+            self.assertIsNone(result.start_time)
+            self.assertIsNone(result.end_time)
 
     def test_direct_url_uses_directory_default_from_download_config(self):
         def parse_input(value):
@@ -94,9 +115,7 @@ class InteractiveDownloadTests(unittest.TestCase):
 
         result = collect_interactive_download(
             parse_input=parse_input,
-            input_func=input_from(
-                ["https://example.com/video", "", "", "n", "", "", ""]
-            ),
+            input_func=input_from(["https://example.com/video", "", ""]),
             output_func=lambda _message: None,
         )
 
@@ -114,6 +133,7 @@ class InteractiveDownloadTests(unittest.TestCase):
                         "download.conf",
                         "",
                         "https://example.com/video",
+                        "y",
                         temp_dir,
                         "",
                         "n",
@@ -138,6 +158,7 @@ class InteractiveDownloadTests(unittest.TestCase):
                 input_func=input_from(
                     [
                         "https://example.com/video",
+                        "y",
                         temp_dir,
                         "4k",
                         "1080",
@@ -162,6 +183,7 @@ class InteractiveDownloadTests(unittest.TestCase):
                 input_func=input_from(
                     [
                         "https://example.com/video",
+                        "y",
                         temp_dir,
                         "",
                         "n",
@@ -186,6 +208,7 @@ class InteractiveDownloadTests(unittest.TestCase):
                 input_func=input_from(
                     [
                         "https://example.com/video",
+                        "y",
                         temp_dir,
                         "",
                         "n",
