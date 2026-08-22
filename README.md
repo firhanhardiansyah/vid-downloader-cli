@@ -49,20 +49,20 @@ vid-downloader
 
 ## Commands
 
-| Command | Example | Description |
+| Command | Description | Example |
 |---|---|---|
-| `vdl` | `vdl` | Start the interactive downloader |
-| `vdl download` | `vdl download` | Download every URL from the selected config |
-| `vdl download URL` | `vdl download https://example.com/video` | Download one URL without interactive prompts |
-| `vdl download URL --quality QUALITY` | `vdl download https://example.com/video --quality 720` | Download a video with the selected quality |
-| `vdl download URL --audio` | `vdl download https://example.com/video --audio` | Download audio only |
-| `vdl download URL --start TIME --end TIME` | `vdl download https://example.com/video --start 10:12 --end 13:12` | Download only the selected time range |
-| `vdl download URL --folder DIRECTORY` | `vdl download https://example.com/video --folder ~/Downloads/Videos` | Download to a specific directory |
-| `vdl download --config PATH` | `vdl download --config ~/Downloads/download.conf` | Download using a specific config file |
-| `vdl init` | `vdl init` | Create or reconfigure the global `download.conf` |
-| `vdl config-path` | `vdl config-path` | Show the config selected for the current directory |
-| `vdl --help` | `vdl --help` | Show all CLI options |
-| `vdl --version` | `vdl --version` | Show the installed version |
+| `vdl` | Start the interactive downloader | `vdl` |
+| `vdl download` | Download every URL from the selected config | `vdl download` |
+| `vdl download URL` | Download one URL without interactive prompts | `vdl download https://example.com/video` |
+| `vdl download URL --quality QUALITY` | Download a video with the selected quality | `vdl download https://example.com/video --quality 720` |
+| `vdl download URL --audio` | Download audio only | `vdl download https://example.com/video --audio` |
+| `vdl download URL --start TIME --end TIME` | Download only the selected time range | `vdl download https://example.com/video --start 10:12 --end 13:12` |
+| `vdl download URL --folder DIRECTORY` | Download to a specific directory | `vdl download https://example.com/video --folder ~/Downloads/Videos` |
+| `vdl download --config PATH` | Download using a specific config file | `vdl download --config ~/Downloads/download.conf` |
+| `vdl init` | Create or reconfigure the global `download.conf` | `vdl init` |
+| `vdl config-path` | Show the config selected for the current directory | `vdl config-path` |
+| `vdl --help` | Show all CLI options | `vdl --help` |
+| `vdl --version` | Show the installed version | `vdl --version` |
 
 ## Quick configuration
 
