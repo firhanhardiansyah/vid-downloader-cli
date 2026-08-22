@@ -1,5 +1,3 @@
-import os
-
 import imageio_ffmpeg
 import yt_dlp
 from yt_dlp.utils import download_range_func
@@ -8,6 +6,10 @@ from vid_downloader.config_paths import get_default_download_dir
 from vid_downloader.download_lock import DownloadDirectoryLock
 from vid_downloader.formats import build_format_option
 from vid_downloader.metadata import print_video_info
+from vid_downloader.output_naming import (
+    build_output_template,
+    find_available_output_template,
+)
 from vid_downloader.time_utils import resolve_download_range
 from vid_downloader.utils import ensure_folder
 
@@ -97,6 +99,13 @@ def _download_videos_unlocked(
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         for index, url in enumerate(urls, start=1):
             info = ydl.extract_info(url, download=False)
+            ydl.params["outtmpl"]["default"] = find_available_output_template(
+                folder=folder,
+                filename_mode=filename_mode,
+                info=info,
+                prepare_filename=ydl.prepare_filename,
+                merged_extension=ydl.params.get("merge_output_format"),
+            )
 
             if is_partial_requested:
                 duration = info.get("duration")
@@ -128,18 +137,3 @@ def _download_videos_unlocked(
 
             print("\nStarting download...")
             ydl.download([url])
-
-
-def build_output_template(folder: str, filename_mode: str) -> str:
-    templates = {
-        "title_id": "%(title).200s [%(id)s].%(ext)s",
-        "title": "%(title).200s.%(ext)s",
-        "id": "%(id)s.%(ext)s",
-    }
-
-    if filename_mode not in templates:
-        raise ValueError(
-            "Invalid filename_mode. Use one of: 'title_id', 'title', or 'id'."
-        )
-
-    return os.path.join(folder, templates[filename_mode])

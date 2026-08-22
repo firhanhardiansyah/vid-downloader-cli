@@ -302,6 +302,20 @@ The cache lock files contain no media data and remain as stable OS-lock anchors
 to avoid inode race conditions. Legacy `.vid-downloader.lock` files in download
 folders can be removed after confirming no older downloader process is running.
 
+## Duplicate filenames
+
+Existing downloads are never silently overwritten. If the generated filename
+already exists, the CLI adds an incrementing number before the extension:
+
+```text
+a.mp4
+a (1).mp4
+a (2).mp4
+```
+
+An unfinished `.part` file does not trigger a new number, allowing an
+interrupted download to resume with its original filename.
+
 ## Test
 
 ```bash
