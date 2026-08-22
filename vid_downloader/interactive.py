@@ -33,18 +33,17 @@ def collect_interactive_download(
         parse_input,
         default_config_path,
     )
-    urls, source_folder, source_quality = _prompt_source(
+    urls = _prompt_url(
         parse_input=parse_input,
-        default_config_path=default_config_path,
         input_func=input_func,
         output_func=output_func,
     )
     folder = _prompt_folder(
-        default=source_folder or default_folder or str(get_default_download_dir()),
+        default=default_folder or str(get_default_download_dir()),
         input_func=input_func,
     )
     quality = _prompt_quality(
-        default=source_quality or default_quality or "best",
+        default=default_quality or "best",
         input_func=input_func,
         output_func=output_func,
     )
@@ -99,20 +98,26 @@ def _load_config_defaults(
         return None, None
 
 
-def _prompt_source(
+def _prompt_url(
     parse_input: Callable[[str], tuple[list[str], str | None, str | None]],
-    default_config_path: str,
     input_func: Callable[[str], str],
     output_func: Callable[[str], None],
-) -> tuple[list[str], str | None, str | None]:
+) -> list[str]:
     while True:
-        source = input_func(f"URL or config [{default_config_path}]: ").strip()
-        source = source or default_config_path
+        url = input_func("URL: ").strip()
+        if not url:
+            output_func("URL is required.")
+            continue
+
+        if not url.startswith(("http://", "https://")):
+            output_func("Invalid URL: use an http:// or https:// URL.")
+            continue
 
         try:
-            return parse_input(source)
+            urls, _, _ = parse_input(url)
+            return urls
         except (OSError, ValueError) as exc:
-            output_func(f"Invalid input: {exc}")
+            output_func(f"Invalid URL: {exc}")
 
 
 def _prompt_folder(default: str, input_func: Callable[[str], str]) -> str:

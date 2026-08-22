@@ -40,8 +40,9 @@ class InteractiveDownloadTests(unittest.TestCase):
 
             result = collect_interactive_download(
                 parse_input=parse_download_input,
+                default_config_path=str(config_path),
                 input_func=input_from(
-                    [str(config_path), "", "", "y", "", "", "yes"]
+                    ["https://example.com/video", "", "", "y", "", "", "yes"]
                 ),
                 output_func=output.append,
             )
@@ -101,6 +102,32 @@ class InteractiveDownloadTests(unittest.TestCase):
 
         self.assertEqual(result.folder, "/configured/videos")
         self.assertEqual(result.quality, "720")
+
+    def test_interactive_prompt_rejects_config_path_and_requires_url(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output = []
+
+            result = collect_interactive_download(
+                parse_input=parse_download_input,
+                input_func=input_from(
+                    [
+                        "download.conf",
+                        "",
+                        "https://example.com/video",
+                        temp_dir,
+                        "",
+                        "n",
+                        "",
+                        "",
+                        "",
+                    ]
+                ),
+                output_func=output.append,
+            )
+
+            self.assertEqual(result.urls, ["https://example.com/video"])
+            self.assertIn("Invalid URL: use an http:// or https:// URL.", output)
+            self.assertIn("URL is required.", output)
 
     def test_invalid_quality_is_asked_again(self):
         with tempfile.TemporaryDirectory() as temp_dir:

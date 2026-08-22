@@ -152,7 +152,7 @@ vid-downloader
 ```text
 Video Downloader
 
-URL or config [download.conf]:
+URL: https://example.com/video
 Download directory [/Users/user/Gallery]:
 Quality [best]:
 Audio only? [y/N]:
@@ -171,6 +171,11 @@ Start download? [Y/n]:
 
 Press Enter to accept a displayed default. Pressing Enter at the final prompt
 starts the download; enter `n` to cancel. `Ctrl+C` cancels cleanly.
+
+Interactive mode always asks for a direct HTTP/HTTPS URL. It does not take the
+URL from `download.conf`; the config is only used for defaults such as
+`DOWNLOAD_DIR` and `QUALITY`. To download all entries in `URLS`, use the
+non-interactive `vid-downloader download` command.
 
 ## Non-interactive usage
 
