@@ -1,241 +1,63 @@
 # Vid Downloader CLI
 
-A terminal-first video downloader powered by `yt-dlp`. It supports an
-interactive workflow, scriptable commands, partial downloads, resumable
-downloads, and an output-directory lock that prevents concurrent writes.
+A terminal-first video downloader powered by `yt-dlp`. Download interactively,
+run batches from a config file, select video quality, download a time range,
+and safely resume interrupted downloads.
 
-## macOS guide
+## Features
 
-### Global CLI installation with pipx
+- Interactive and non-interactive workflows
+- Batch URLs through `download.conf`
+- Video quality and audio-only modes
+- Partial downloads using start and end times
+- Resume support through `.part` files
+- Automatic duplicate names such as `video (1).mp4`
+- Cross-process locking without adding lock files to the output directory
+- macOS, Linux, and Windows support
 
-Install pipx with Homebrew. Administrator access is not required:
+## Get started
+
+[Install uv](docs/installation.md#install-uv), then clone and install the CLI:
 
 ```bash
-brew install pipx
-pipx ensurepath
-```
-
-Open a new terminal, clone the project, and install it:
-
-```bash
-git clone <repository-url>
+git clone https://github.com/firhanhardiansyah/vid-downloader-cli.git
 cd vid-downloader-cli
-pipx install .
+uv tool install .
+uv tool update-shell
 ```
 
-Verify both installed commands:
+Open a new terminal after the first installation, then start interactive mode:
 
 ```bash
-vid-downloader --version
-vdl --version
+vdl
 ```
 
-The commands can now be used from any directory. After updating the source,
-run this inside the project directory:
-
-```bash
-pipx install --force .
-```
-
-### Local development with a virtual environment
-
-```bash
-git clone <repository-url>
-cd vid-downloader-cli
-
-python3 -m venv .venv
-source .venv/bin/activate
-python3 -m pip install -e .
-```
-
-Run the downloader using any of these commands:
-
-```bash
-python3 main.py download
-vid-downloader download
-vdl download
-```
-
-The CLI commands are available while the virtual environment is active. Exit
-the environment with:
-
-```bash
-deactivate
-```
-
-## Windows guide
-
-The commands below use PowerShell.
-
-### Global CLI installation with pipx
-
-Install pipx for the current user. Administrator access is not required:
-
-```powershell
-py -m pip install --user pipx
-py -m pipx ensurepath
-```
-
-Close and reopen PowerShell so the updated `PATH` is loaded. Then clone and
-install the project:
-
-```powershell
-git clone <repository-url>
-cd vid-downloader-cli
-pipx install .
-```
-
-Verify both installed commands:
-
-```powershell
-vid-downloader --version
-vdl --version
-```
-
-After updating the source, run this inside the project directory:
-
-```powershell
-pipx install --force .
-```
-
-### Local development with a virtual environment
-
-```powershell
-git clone <repository-url>
-cd vid-downloader-cli
-
-py -m venv .venv
-.venv\Scripts\Activate.ps1
-py -m pip install -e .
-```
-
-Run the downloader using any of these commands:
-
-```powershell
-py main.py download
-vid-downloader download
-vdl download
-```
-
-The `-e` option installs the project in editable mode, so source changes are
-immediately available. Exit the virtual environment with:
-
-```powershell
-deactivate
-```
-
-## Make commands
-
-The included Makefile provides shortcuts for installation and development on
-macOS, Linux, and Windows environments that have GNU Make installed:
-
-```bash
-make install      # Install or update the CLI with pipx
-make reinstall    # Reinstall the existing pipx package
-make uninstall    # Remove the CLI
-make test         # Run the unit tests
-make dev-install  # Install in editable mode for development
-```
-
-`make install` and `make dev-install` run `pipx ensurepath` automatically.
-If pipx is unavailable, the Makefile exits without using administrator access
-and prints installation guidance for the current environment.
-
-## Interactive usage
-
-Run the command and follow the prompts:
+The full command name is also available:
 
 ```bash
 vid-downloader
 ```
 
-```text
-Video Downloader
+## Commands
 
-URL: https://example.com/video
-Advanced options? [y/N]: y
-Download directory [/Users/user/Gallery]:
-Quality [best]:
-Audio only? [y/N]:
-Start time [from beginning]: 10:12
-End time [until finished]: 13:12
+| Command | Example | Description |
+|---|---|---|
+| `vdl` | `vdl` | Start the interactive downloader |
+| `vdl download` | `vdl download` | Download every URL from the selected config |
+| `vdl download URL` | `vdl download https://example.com/video` | Download one URL without interactive prompts |
+| `vdl download URL --quality QUALITY` | `vdl download https://example.com/video --quality 720` | Download a video with the selected quality |
+| `vdl download URL --audio` | `vdl download https://example.com/video --audio` | Download audio only |
+| `vdl download URL --start TIME --end TIME` | `vdl download https://example.com/video --start 10:12 --end 13:12` | Download only the selected time range |
+| `vdl download URL --folder DIRECTORY` | `vdl download https://example.com/video --folder ~/Downloads/Videos` | Download to a specific directory |
+| `vdl download --config PATH` | `vdl download --config ~/Downloads/download.conf` | Download using a specific config file |
+| `vdl init` | `vdl init` | Create the global `download.conf` |
+| `vdl config-path` | `vdl config-path` | Show the config selected for the current directory |
+| `vdl --help` | `vdl --help` | Show all CLI options |
+| `vdl --version` | `vdl --version` | Show the installed version |
 
-Download summary
-URLs      : 1
-Directory : /Users/user/Gallery
-Quality   : best
-Mode      : Video
-Range     : 10:12 - 13:12
+## Quick configuration
 
-Start download? [Y/n]:
-```
-
-Press Enter to accept a displayed default. Pressing Enter at the final prompt
-starts the download; enter `n` to cancel. `Ctrl+C` cancels cleanly.
-
-Interactive mode always asks for a direct HTTP/HTTPS URL. It does not take the
-URL from `download.conf`; the config is only used for defaults such as
-`DOWNLOAD_DIR` and `QUALITY`. To download all entries in `URLS`, use the
-non-interactive `vid-downloader download` command.
-
-Press Enter or answer `n` at `Advanced options? [y/N]` to skip the directory,
-quality, audio-only, and time-range prompts. The CLI then uses the config
-defaults and continues to `Start download? [Y/n]`. Answer `y` to customize
-those options.
-
-## Non-interactive usage
-
-Use the `download` subcommand for scripts and automation:
-
-```bash
-vid-downloader download
-vid-downloader download https://example.com/video
-vid-downloader download https://example.com/video --quality 720
-vid-downloader download https://example.com/video --audio
-vid-downloader download --folder /path/to/downloads
-```
-
-`--download` remains available as a backward-compatible alias.
-
-The legacy command remains available for development compatibility:
-
-```bash
-python3 main.py download
-```
-
-## Configuration
-
-Create a global config:
-
-```bash
-vid-downloader init
-```
-
-Show the config selected for the current directory:
-
-```bash
-vid-downloader config-path
-```
-
-Config lookup order:
-
-1. A file passed with `--config`.
-2. `download.conf` in the current directory.
-3. The global user config.
-
-Global config locations:
-
-- macOS/Linux: `~/.config/vid-downloader/download.conf`, respecting
-  `$XDG_CONFIG_HOME` when set.
-- Windows: `%APPDATA%\vid-downloader\download.conf`.
-
-Use a custom config for one run:
-
-```bash
-vid-downloader --config /path/to/download.conf
-```
-
-Config format:
+Create `download.conf` in the directory where the command will run:
 
 ```ini
 URLS=[
@@ -243,92 +65,45 @@ URLS=[
     "https://example.com/video2",
 ]
 
-# Empty means the directory where the CLI is started.
+# Empty means the current working directory.
 DOWNLOAD_DIR=
+
+# Empty means best quality.
 QUALITY=
 ```
 
-If `DOWNLOAD_DIR` is empty or omitted, it defaults to the current working
-directory on macOS, Linux, and Windows. A non-empty value in the config takes
-priority, while `--folder` overrides both. An empty `QUALITY` uses `best`.
-Supported values are `144`, `240`, `360`,
-`480`, `720`, `1080`, and `best`. Relative download directories are resolved
-from the config file's directory.
-
-For example, with an empty `DOWNLOAD_DIR`:
+Run the batch:
 
 ```bash
-cd ~/Gallery
-vdl
+vdl download
 ```
 
-The default output shown by the prompt will be `~/Gallery`. On Windows, running
-the CLI from `C:\Users\user\Gallery` uses that directory in the same way.
+Interactive mode asks for a direct URL. It uses `DOWNLOAD_DIR` and `QUALITY`
+from the selected config as defaults, but does not read `URLS` from it.
 
-## Time ranges
+## Update or remove
 
-Start and end times accept seconds, `MM:SS`, or `HH:MM:SS`:
+From the cloned project directory:
 
 ```bash
-vid-downloader download --start 10:12 --end 13:12
+uv tool install --force .       # Update/reinstall
+uv tool uninstall vid-downloader-cli
 ```
 
-Leave both values empty in interactive mode to download the full video.
-
-## Options
-
-```text
---download                 Run without interactive prompts
---config PATH              Use a specific config file
--q, --quality QUALITY      Override config quality
--a, --audio                Download audio only
--s, --simple               Use the simple yt-dlp format
--f, --folder PATH          Override the download directory
---filename-mode MODE       title (default), title_id, or id
--r, --referer URL          Send a Referer header
--c, --cookies-browser NAME Load cookies from a browser
---headers JSON             Send additional HTTP headers
---start TIME               Partial-download start time
---end TIME                 Partial-download end time
--v, --version              Print the version
-```
-
-Run `vid-downloader --help` for the complete generated help.
-
-## Resume and concurrency safety
-
-Interrupted downloads retain their `.part` file. Run the same command again to
-resume when the source server supports range requests. Temporary fragments are
-removed after a successful download.
-
-Only one process may use a `DOWNLOAD_DIR` at a time. Lock anchors are stored
-outside the download directory in the user's cache, using a hash of the output
-path as the filename:
-
-- macOS: `~/Library/Caches/vid-downloader/locks/`
-- Linux: `~/.cache/vid-downloader/locks/`
-- Windows: `%LOCALAPPDATA%\vid-downloader\locks\`
-
-The cache lock files contain no media data and remain as stable OS-lock anchors
-to avoid inode race conditions. Legacy `.vid-downloader.lock` files in download
-folders can be removed after confirming no older downloader process is running.
-
-## Duplicate filenames
-
-Existing downloads are never silently overwritten. If the generated filename
-already exists, the CLI adds an incrementing number before the extension:
-
-```text
-a.mp4
-a (1).mp4
-a (2).mp4
-```
-
-An unfinished `.part` file does not trigger a new number, allowing an
-interrupted download to resume with its original filename.
-
-## Test
+If GNU Make is installed, equivalent shortcuts are available:
 
 ```bash
-python -m unittest discover -s tests -v
+make install
+make reinstall
+make uninstall
+make test
+make dev-install
+make sync
 ```
+
+## Documentation
+
+- [Installation](docs/installation.md) — uv setup for macOS, Linux, and Windows
+- [Configuration](docs/configuration.md) — config lookup, options, and batch URLs
+- [Development](docs/development.md) — uv workflow, tests, and project structure
+- [Troubleshooting](docs/troubleshooting.md) — PATH, permissions, resume, and locks
