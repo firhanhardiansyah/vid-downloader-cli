@@ -4,10 +4,10 @@ def build_format_option(
     simple: bool = False,
     is_partial_requested: bool = False,
 ) -> str:
-    quality = validate_quality(quality)
-
     if audio_only:
         return "bestaudio/best"
+
+    quality = validate_quality(quality)
 
     if simple:
         if quality == "best":

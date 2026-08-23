@@ -46,7 +46,6 @@ class InteractiveDownloadTests(unittest.TestCase):
                         "https://example.com/video",
                         "y",
                         "",
-                        "",
                         "y",
                         "",
                         "",
@@ -67,6 +66,9 @@ class InteractiveDownloadTests(unittest.TestCase):
             self.assertIsNone(result.start_time)
             self.assertIsNone(result.end_time)
             self.assertIn("Download summary", output)
+            self.assertIn("Format    : MP3", output)
+            self.assertIn("Quality   : 192 kbps", output)
+            self.assertIn("Range     : Full audio", output)
 
     def test_download_can_be_cancelled(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -135,8 +137,8 @@ class InteractiveDownloadTests(unittest.TestCase):
                         "https://example.com/video",
                         "y",
                         temp_dir,
-                        "",
                         "n",
+                        "",
                         "",
                         "",
                         "",
@@ -160,9 +162,9 @@ class InteractiveDownloadTests(unittest.TestCase):
                         "https://example.com/video",
                         "y",
                         temp_dir,
+                        "n",
                         "4k",
                         "1080",
-                        "n",
                         "",
                         "",
                         "y",
@@ -185,8 +187,8 @@ class InteractiveDownloadTests(unittest.TestCase):
                         "https://example.com/video",
                         "y",
                         temp_dir,
-                        "",
                         "n",
+                        "",
                         "10:12",
                         "13:12",
                         "",
@@ -210,8 +212,8 @@ class InteractiveDownloadTests(unittest.TestCase):
                         "https://example.com/video",
                         "y",
                         temp_dir,
-                        "",
                         "n",
+                        "",
                         "13:12",
                         "10:12",
                         "10:12",

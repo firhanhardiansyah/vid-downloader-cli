@@ -201,7 +201,7 @@ def build_parser() -> argparse.ArgumentParser:
         "-a",
         "--audio",
         action="store_true",
-        help="Download audio only",
+        help="Download audio only as MP3 (192 kbps)",
     )
     parser.add_argument(
         "-s",

@@ -64,6 +64,23 @@ class OutputNamingTests(unittest.TestCase):
                 str(Path(temp_dir) / "%(title).200s (1).%(ext)s"),
             )
 
+    def test_checks_final_mp3_extension(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            Path(temp_dir, "a.mp3").touch()
+
+            template = find_available_output_template(
+                folder=temp_dir,
+                filename_mode="title",
+                info={"title": "a", "id": "123", "ext": "webm"},
+                prepare_filename=prepare_filename,
+                merged_extension="mp3",
+            )
+
+            self.assertEqual(
+                template,
+                str(Path(temp_dir) / "%(title).200s (1).%(ext)s"),
+            )
+
     def test_part_file_does_not_trigger_copy_number(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             Path(temp_dir, "a.mp4.part").touch()

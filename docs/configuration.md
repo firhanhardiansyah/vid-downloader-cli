@@ -144,6 +144,18 @@ Override it for one command:
 vdl download URL --quality 720
 ```
 
+## Audio-only MP3
+
+Use `--audio` to download the best available audio stream and convert it to
+MP3 at 192 kbps:
+
+```bash
+vdl download URL --audio
+```
+
+Video `QUALITY` is ignored in audio mode. Interactive mode provides the same
+behavior through `Audio only (MP3)? [y/N]`.
+
 ## Time ranges
 
 Accepted formats are seconds, `MM:SS`, and `HH:MM:SS`:

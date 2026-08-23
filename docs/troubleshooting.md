@@ -139,10 +139,10 @@ Supported choices are shown by:
 vdl --help
 ```
 
-## FFmpeg or media merge fails
+## FFmpeg conversion or media merge fails
 
-The project uses `imageio-ffmpeg` to provide an FFmpeg executable. First sync
-or reinstall dependencies:
+The project uses `imageio-ffmpeg` to provide an FFmpeg executable for video
+merging and MP3 conversion. First sync or reinstall dependencies:
 
 ```bash
 uv sync

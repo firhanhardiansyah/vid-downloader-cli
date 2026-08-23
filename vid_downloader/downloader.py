@@ -14,6 +14,9 @@ from vid_downloader.time_utils import resolve_download_range
 from vid_downloader.utils import ensure_folder
 
 
+MP3_AUDIO_QUALITY = "192"
+
+
 def download_videos(
     urls,
     folder=None,
@@ -72,24 +75,13 @@ def _download_videos_unlocked(
     if referer:
         http_headers["Referer"] = referer
 
-    ydl_opts = {
-        "format": format_option,
-        "merge_output_format": "mp4",
-        "outtmpl": build_output_template(folder, filename_mode),
-        "noplaylist": True,
-        "ignoreerrors": False,
-        "retries": 10,
-        "continuedl": True,
-        "nopart": False,
-        "keep_fragments": False,
-        "ffmpeg_location": imageio_ffmpeg.get_ffmpeg_exe(),
-        "http_headers": http_headers,
-        "overwrites": False,
-        "verbose": False,
-        "extractor_args": {
-            "generic": {"impersonate": ["chrome"]},
-        },
-    }
+    ydl_opts = _build_ydl_options(
+        format_option=format_option,
+        folder=folder,
+        filename_mode=filename_mode,
+        http_headers=http_headers,
+        audio_only=audio_only,
+    )
 
     if cookies_from_browser:
         ydl_opts["cookiesfrombrowser"] = cookies_from_browser
@@ -99,12 +91,17 @@ def _download_videos_unlocked(
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         for index, url in enumerate(urls, start=1):
             info = ydl.extract_info(url, download=False)
+            final_extension = (
+                "mp3"
+                if audio_only
+                else ydl.params.get("merge_output_format")
+            )
             ydl.params["outtmpl"]["default"] = find_available_output_template(
                 folder=folder,
                 filename_mode=filename_mode,
                 info=info,
                 prepare_filename=ydl.prepare_filename,
-                merged_extension=ydl.params.get("merge_output_format"),
+                merged_extension=final_extension,
             )
 
             if is_partial_requested:
@@ -137,3 +134,42 @@ def _download_videos_unlocked(
 
             print("\nStarting download...")
             ydl.download([url])
+
+
+def _build_ydl_options(
+    format_option: str,
+    folder: str,
+    filename_mode: str,
+    http_headers: dict,
+    audio_only: bool,
+) -> dict:
+    options = {
+        "format": format_option,
+        "outtmpl": build_output_template(folder, filename_mode),
+        "noplaylist": True,
+        "ignoreerrors": False,
+        "retries": 10,
+        "continuedl": True,
+        "nopart": False,
+        "keep_fragments": False,
+        "ffmpeg_location": imageio_ffmpeg.get_ffmpeg_exe(),
+        "http_headers": http_headers,
+        "overwrites": False,
+        "verbose": False,
+        "extractor_args": {
+            "generic": {"impersonate": ["chrome"]},
+        },
+    }
+
+    if audio_only:
+        options["postprocessors"] = [
+            {
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": MP3_AUDIO_QUALITY,
+            }
+        ]
+    else:
+        options["merge_output_format"] = "mp4"
+
+    return options

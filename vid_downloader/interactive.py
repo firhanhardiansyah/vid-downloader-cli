@@ -53,17 +53,18 @@ def collect_interactive_download(
 
     if use_advanced_options:
         folder = _prompt_folder(default=folder, input_func=input_func)
-        quality = _prompt_quality(
-            default=quality,
-            input_func=input_func,
-            output_func=output_func,
-        )
         audio_only = _prompt_yes_no(
-            "Audio only? [y/N]: ",
+            "Audio only (MP3)? [y/N]: ",
             default=False,
             input_func=input_func,
             output_func=output_func,
         )
+        if not audio_only:
+            quality = _prompt_quality(
+                default=quality,
+                input_func=input_func,
+                output_func=output_func,
+            )
         start_time, end_time = _prompt_time_range(
             input_func=input_func,
             output_func=output_func,
@@ -73,9 +74,15 @@ def collect_interactive_download(
     output_func("Download summary")
     output_func(f"URLs      : {len(urls)}")
     output_func(f"Directory : {folder}")
-    output_func(f"Quality   : {quality}")
     output_func(f"Mode      : {'Audio' if audio_only else 'Video'}")
-    output_func(f"Range     : {_format_range(start_time, end_time)}")
+    if audio_only:
+        output_func("Format    : MP3")
+        output_func("Quality   : 192 kbps")
+    else:
+        output_func(f"Quality   : {quality}")
+    output_func(
+        f"Range     : {_format_range(start_time, end_time, audio_only)}"
+    )
     output_func("")
 
     confirmed = _prompt_yes_no(
@@ -184,9 +191,10 @@ def _validate_time_range(
 def _format_range(
     start_time: int | float | None,
     end_time: int | float | None,
+    audio_only: bool = False,
 ) -> str:
     if start_time is None and end_time is None:
-        return "Full video"
+        return "Full audio" if audio_only else "Full video"
 
     start = "beginning" if start_time is None else format_duration(start_time)
     end = "finished" if end_time is None else format_duration(end_time)

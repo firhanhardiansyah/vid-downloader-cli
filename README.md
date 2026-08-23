@@ -14,7 +14,7 @@
 
 - Interactive and non-interactive workflows
 - Batch URLs through `download.conf`
-- Video quality and audio-only modes
+- Video quality selection and MP3 audio-only mode
 - Partial downloads using start and end times
 - Resume support through `.part` files
 - Automatic duplicate names such as `video (1).mp4`
@@ -61,7 +61,7 @@ vid-downloader
 | `vdl download`                             | Download every URL from the selected config        | `vdl download`                                                       |
 | `vdl download URL`                         | Download one URL without interactive prompts       | `vdl download https://example.com/video`                             |
 | `vdl download URL --quality QUALITY`       | Download a video with the selected quality         | `vdl download https://example.com/video --quality 720`               |
-| `vdl download URL --audio`                 | Download audio only                                | `vdl download https://example.com/video --audio`                     |
+| `vdl download URL --audio`                 | Download audio as MP3 (192 kbps)                   | `vdl download https://example.com/video --audio`                     |
 | `vdl download URL --start TIME --end TIME` | Download only the selected time range              | `vdl download https://example.com/video --start 10:12 --end 13:12`   |
 | `vdl download URL --folder DIRECTORY`      | Download to a specific directory                   | `vdl download https://example.com/video --folder ~/Downloads/Videos` |
 | `vdl download --config PATH`               | Download using a specific config file              | `vdl download --config ~/Downloads/download.conf`                    |
