@@ -1,8 +1,14 @@
-# Vid Downloader CLI
+<div align="center">
+    <img src="media/logo_large.webp" alt="Vid Downloader CLI Logo"  width="200"/>
+    <h1>Vid Downloader CLI</h1>
+    <h3><em>Download videos from your terminal—simply, safely, and your way.</em></h3>
+</div>
 
-A terminal-first video downloader powered by `yt-dlp`. Download interactively,
-run batches from a config file, select video quality, download a time range,
-and safely resume interrupted downloads.
+<p align="center">
+    <strong>A cross-platform, terminal-first video downloader powered by yt-dlp, with interactive and batch workflows, quality selection, partial downloads, and safe resume support.</strong>
+</p>
+
+---
 
 ## Features
 
@@ -49,20 +55,20 @@ vid-downloader
 
 ## Commands
 
-| Command | Description | Example |
-|---|---|---|
-| `vdl` | Start the interactive downloader | `vdl` |
-| `vdl download` | Download every URL from the selected config | `vdl download` |
-| `vdl download URL` | Download one URL without interactive prompts | `vdl download https://example.com/video` |
-| `vdl download URL --quality QUALITY` | Download a video with the selected quality | `vdl download https://example.com/video --quality 720` |
-| `vdl download URL --audio` | Download audio only | `vdl download https://example.com/video --audio` |
-| `vdl download URL --start TIME --end TIME` | Download only the selected time range | `vdl download https://example.com/video --start 10:12 --end 13:12` |
-| `vdl download URL --folder DIRECTORY` | Download to a specific directory | `vdl download https://example.com/video --folder ~/Downloads/Videos` |
-| `vdl download --config PATH` | Download using a specific config file | `vdl download --config ~/Downloads/download.conf` |
-| `vdl init` | Create or reconfigure the global `download.conf` | `vdl init` |
-| `vdl config-path` | Show the config selected for the current directory | `vdl config-path` |
-| `vdl --help` | Show all CLI options | `vdl --help` |
-| `vdl --version` | Show the installed version | `vdl --version` |
+| Command                                    | Description                                        | Example                                                              |
+| ------------------------------------------ | -------------------------------------------------- | -------------------------------------------------------------------- |
+| `vdl`                                      | Start the interactive downloader                   | `vdl`                                                                |
+| `vdl download`                             | Download every URL from the selected config        | `vdl download`                                                       |
+| `vdl download URL`                         | Download one URL without interactive prompts       | `vdl download https://example.com/video`                             |
+| `vdl download URL --quality QUALITY`       | Download a video with the selected quality         | `vdl download https://example.com/video --quality 720`               |
+| `vdl download URL --audio`                 | Download audio only                                | `vdl download https://example.com/video --audio`                     |
+| `vdl download URL --start TIME --end TIME` | Download only the selected time range              | `vdl download https://example.com/video --start 10:12 --end 13:12`   |
+| `vdl download URL --folder DIRECTORY`      | Download to a specific directory                   | `vdl download https://example.com/video --folder ~/Downloads/Videos` |
+| `vdl download --config PATH`               | Download using a specific config file              | `vdl download --config ~/Downloads/download.conf`                    |
+| `vdl init`                                 | Create or reconfigure the global `download.conf`   | `vdl init`                                                           |
+| `vdl config-path`                          | Show the config selected for the current directory | `vdl config-path`                                                    |
+| `vdl --help`                               | Show all CLI options                               | `vdl --help`                                                         |
+| `vdl --version`                            | Show the installed version                         | `vdl --version`                                                      |
 
 ## Quick configuration
 
